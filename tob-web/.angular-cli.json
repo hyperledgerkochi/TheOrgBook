@@ -9,6 +9,7 @@
       "outDir": "dist",
       "assets": [
         "assets",
+        "gcweb",
         "favicon.ico"
       ],
       "index": "index.html",
@@ -19,7 +20,7 @@
       "testTsconfig": "tsconfig.spec.json",
       "prefix": "app",
       "styles": [
-        "bcgov.scss",
+        "gcweb.scss",
         "styles.scss"
       ],
       "scripts": [],
