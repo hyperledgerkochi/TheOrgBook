@@ -23,21 +23,21 @@ const routes: Routes = [
     path: 'business/:recordId',
     component: BusinessComponent,
     data: {
-      breadcrumb: 'Organization Info'
+      breadcrumb: 'Supplier Certifications'
     }
   },
   {
     path: 'cert/:recordId',
     component: CertComponent,
     data: {
-      breadcrumb: 'Permit and License Info'
+      breadcrumb: 'Certification Details'
     }
   },
   {
     path: 'issuer/:recordId',
     component: IssuerComponent,
     data: {
-      breadcrumb: 'Issuer Service'
+      breadcrumb: 'Issuer Details'
     }
   },
   {

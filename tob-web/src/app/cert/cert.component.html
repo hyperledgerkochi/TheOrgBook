@@ -15,7 +15,7 @@
     <div class="col-md-8 col-sm-7">
       <h1 class="business-title">{{record.org.legalName}}</h1>
 
-      <a [routerLink]="['/business/', record.verifiableOrgId]" class="title-back-link mrgn-bttm-md"><span class="fa fa-arrow-left"></span> Back to Organization Info</a>
+      <a [routerLink]="['/business/', record.verifiableOrgId]" class="title-back-link mrgn-bttm-md"><span class="fa fa-arrow-left"></span> Back to Supplier Registrations</a>
 
       <h2 class="cert-title">{{record.type.claimType}}</h2>
 
@@ -46,13 +46,13 @@
             </div>
           </div>
           <div class="row form-group">
-            <label class="col-sm-4 control-label">Effective Date</label>
+            <label class="col-sm-4 control-label">Issued</label>
             <div class="col-sm-8 form-field">
               {{record.effectiveDate}}
             </div>
           </div>
           <div class="row form-group">
-            <label class="col-sm-4 control-label">Expiry Date</label>
+            <label class="col-sm-4 control-label">Expires</label>
             <div class="col-sm-8 form-field">
               {{record.endDate || '-'}}
             </div>
@@ -90,7 +90,7 @@
       <div class="verify-line">Computing SHA256 digest of local certificate [DONE 1/5]</div>
       <div class="verify-line delay">Fetching hash in OP_RETURN field [DONE 2/5]</div>
       <div class="verify-line delay">Comparing local and blockchain hashes [PASS 3/5]</div>
-      <div class="verify-line delay">Checking Verified Organization signature [PASS 4/5]</div>
+      <div class="verify-line delay">Checking Verified Supplier signature [PASS 4/5]</div>
       <div class="verify-line delay">Checking not revoked by issuer [PASS 5/5]</div>
       <div class="verify-line delay"><span class="verify-pfx">Success!</span> The certificate has been verified.</div>
       <div class="verify-line"><span class="verify-pfx">Public Key:</span> 1GuqT4EpnhmA6GQvA3Fz5JWPjcZyXSQpFw</div>
