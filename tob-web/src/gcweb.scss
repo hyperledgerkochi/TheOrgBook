@@ -1,3 +1,8 @@
 header[role="banner"] {
   margin-bottom: 30px;
 }
+
+.alert *:first-child > .fa:first-child {
+  // avoid duplicate alert icon
+  display: none;
+}

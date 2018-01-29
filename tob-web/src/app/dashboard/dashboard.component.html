@@ -1,6 +1,6 @@
 <section id="dashboard">
 
-  <h1 class="dashboard-title text-center">Welcome to PSPC's Verifiable Suppliers</h1>
+  <h1 class="dashboard-title text-center">PSPC Supplier Certifications Register</h1>
 
   <div class="row">
     <div class="col-sm-12">
@@ -19,10 +19,16 @@
           <div class="btn-toolbar search-type">
             <div class="btn-group">
               <label [class]="'btn btn-default btn-radio' + (searchType=='name' ? ' active' : '')">
-                <input type="radio" name="search_type" value="name" [checked]="searchType=='name'" (click)="setSearchType($event)"> &nbsp;Search by Name
+                <input type="radio" name="search_type" value="name" [checked]="searchType=='name'" (click)="setSearchType($event)"> &nbsp;Name
+              </label>
+              <label [class]="'btn btn-default btn-radio' + (searchType=='pbn' ? ' active' : '')">
+                <input type="radio" name="search_type" value="pbn" [checked]="searchType=='pbn'" (click)="setSearchType($event)"> &nbsp;PBN
+              </label>
+              <label [class]="'btn btn-default btn-radio' + (searchType=='cert' ? ' active' : '')">
+                <input type="radio" name="search_type" value="cert" [checked]="searchType=='cert'" (click)="setSearchType($event)"> &nbsp;Certification
               </label>
               <label [class]="'btn btn-default btn-radio' + (searchType=='location' ? ' active' : '')">
-                <input type="radio" name="search_type" value="location" [checked]="searchType=='location'" (click)="setSearchType($event)"> &nbsp;Search by Location
+                <input type="radio" name="search_type" value="location" [checked]="searchType=='location'" (click)="setSearchType($event)"> &nbsp;Location
               </label>
             </div>
           </div>
