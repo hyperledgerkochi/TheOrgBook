@@ -30,17 +30,34 @@ usage() {
   start - Creates the application containers from the built images
           and starts the services based on the docker-compose.yml file.
 
+          You can pass in a list of containers to start.  
+          By default all containers will be started.
+          
+          The API_URL used by tob-web can also be redirected.
+
+          Examples:
+          $0 start
+          $0 start tob-solr
+          $0 start tob-web
+          $0 start tob-web API_URL=http://docker.for.win.localhost:56325/api/v1
+
   stop - Stops the services.  This is a non-destructive process.  The containers
          are not deleted so they will be reused the next time you run start.
-
-
+         
+  build-api - Build the API server only.
+  
+  build-solr - Build the Solr Search Engine server only.
 EOF
 exit 1
 }
 # -----------------------------------------------------------------------------------------------------------------
+# Default Settings:
+# -----------------------------------------------------------------------------------------------------------------
+DEFAULT_CONTAINERS="tob-db tob-solr tob-api schema-spy tob-web"
+# -----------------------------------------------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------------------------------------------
-buildImages() {
+build-web() {
   #
   # tob-web
   #
@@ -62,7 +79,9 @@ buildImages() {
     --runtime-image \
     "nginx-runtime" \
     -a "/opt/app-root/src/dist/:app"
+}
 
+build-solr() {
   #
   # tob-solr
   #
@@ -76,20 +95,30 @@ buildImages() {
     '../tob-solr/cores' \
     'solr-base' \
     'solr'
+}
 
+build-db() {
   #
   # tob-db
   #
     # Nothing to build here ...
+  echo
+}
 
+build-schema-spy() {
   #
-  # tob-api
+  # schema-spy
   #
   echo -e "\nBuilding schema-spy image ..."
   docker build \
     https://github.com/bcgov/SchemaSpy.git \
     -t 'schema-spy'
+}
 
+build-api() {
+  #
+  # tob-api
+  #
   echo -e "\nBuilding libindy image ..."
   docker build \
     -t 'libindy' \
@@ -107,7 +136,23 @@ buildImages() {
     'django'
 }
 
+buildImages() {
+  build-web
+  build-solr
+  build-db
+  build-schema-spy
+  build-api
+}
+
 configureEnvironment () {
+  for arg in $@; do
+    case "$arg" in
+      *=*)
+        export ${arg}
+        ;;  
+    esac
+  done
+  
   # tob-db
   export POSTGRESQL_DATABASE="THE_ORG_BOOK"
   export POSTGRESQL_USER="DB_USER"
@@ -136,9 +181,32 @@ configureEnvironment () {
 
   # tob-web
   export WEB_HTTP_PORT=${WEB_HTTP_PORT-8080}
-  export API_URL="http://tob-api:8080/api/v1/"
+  export API_URL=${API_URL-http://tob-api:8080/api/v1/}
   export IpFilterRules='#allow all; deny all;'
   export RealIpFrom='127.0.0.0/16'
+}
+
+getStartupParams() {
+  CONTAINERS=""
+  ARGS="--force-recreate"
+
+  for arg in $@; do
+    case "$arg" in
+      *=*)
+        # Skip it
+        ;;  
+     -*)
+        ARGS+=" $arg";;
+      *)
+        CONTAINERS+=" $arg";;
+    esac
+  done
+
+  if [ -z "$CONTAINERS" ]; then
+    CONTAINERS="$DEFAULT_CONTAINERS"
+  fi
+
+  echo ${ARGS} ${CONTAINERS}
 }
 # =================================================================================================================
 
@@ -146,8 +214,10 @@ pushd ${SCRIPT_HOME} >/dev/null
 
 case "$1" in
   start)
-    configureEnvironment
-    docker-compose up tob-db tob-solr tob-api schema-spy tob-web
+    shift
+    _startupParams=$(getStartupParams $@)
+    configureEnvironment $@
+    docker-compose up ${_startupParams}
     ;;
   stop)
     configureEnvironment
@@ -155,6 +225,12 @@ case "$1" in
     ;;
   build)
     buildImages
+    ;;
+  build-api)
+    build-api
+    ;;
+  build-solr)
+    build-solr
     ;;
   *)
     usage

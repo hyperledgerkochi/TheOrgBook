@@ -33,3 +33,9 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Indy Agent - genesis transaction file(s)
+genesis
+
+# Visual Studio Code
+.vscode
