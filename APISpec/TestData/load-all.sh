@@ -59,6 +59,15 @@ VerifiableClaimType=VerifiableClaimType/VerifiableClaimType_CT.json
 VerifiableOrg=VerifiableOrg/VerifiableOrg_VO.json
 VerifiableOrgType=VerifiableOrgType/VerifiableOrgType_VOType.json
 
+# PSPC overrides
+DoingBusinessAs=DoingBusinessAs/DoingBusinessAs_PSPC.json
+IssuerService=IssuerService/IssuerService_PSPC.json
+Jurisdiction=Jurisdiction/Jurisdiction_PSPC.json
+Location=Location/Location_PSPC.json
+VerifiableClaim=VerifiableClaim/VerifiableClaim_PSPC.json
+VerifiableClaimType=VerifiableClaimType/VerifiableClaimType_PSPC.json
+VerifiableOrg=VerifiableOrg/VerifiableOrg_PSPC.json
+
 # ==============================================================================================
 # The order of the loading is important - need to add independent files before dependent ones
 # ==============================================================================================

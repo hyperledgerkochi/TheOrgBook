@@ -1,0 +1,29 @@
+[
+    {
+        "effectiveDate": "1992-06-23",
+        "endDate": null,
+        "id": "1",
+        "jurisdictionId": "1",
+        "legalName": "AKAL TRADING COMPANY INC.",
+        "orgId": "830122123PG001",
+        "orgTypeId": "1"
+    },
+    {
+        "effectiveDate": "1992-06-23",
+        "endDate": null,
+        "id": "2",
+        "jurisdictionId": "1",
+        "legalName": "PERI PERI GRILL RESTAURANT INC.",
+        "orgId": "102912949PG001",
+        "orgTypeId": "1"
+    },
+    {
+        "effectiveDate": "1992-06-23",
+        "endDate": null,
+        "id": "2",
+        "jurisdictionId": "1",
+        "legalName": "ERACUDE SYSTEMS INC.",
+        "orgId": "908131781PG001",
+        "orgTypeId": "1"
+    }
+]

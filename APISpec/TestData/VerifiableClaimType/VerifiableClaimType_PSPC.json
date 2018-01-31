@@ -1,0 +1,102 @@
+[
+    {
+        "base64Logo": null,
+        "claimType": "Certificate of Incorporation",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "1",
+        "issuerServiceId": "1",
+        "issuerURL": "https://www2.gov.bc.ca/gov/content/employment-business/business/managing-a-business/permits-licences/businesses-incorporated-companies"
+    },
+    {
+        "base64Logo": null,
+        "claimType": "Business License",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "2",
+        "issuerServiceId": "2",
+        "issuerURL": "https://bizlic.bc.gov.ca/BusinessLicense"
+    },
+    {
+        "base64Logo": null,
+        "claimType": "Restaurant License",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "3",
+        "issuerServiceId": "3",
+        "issuerURL": "https://foodsafe.bc.gov.ca/RestaurantLicense"
+    },
+    {
+        "base64Logo": null,
+        "claimType": "Food Safety License",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "4",
+        "issuerServiceId": "3",
+        "issuerURL": "https://foodsafebc.bc.gov.ca/FoodSafetyLicense"
+    },
+    {
+        "base64Logo": null,
+        "claimType": "Liquor Licence",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "5",
+        "issuerServiceId": "4",
+        "issuerURL": "https://llbc.bc.gov.ca/LiquorLicense"
+    },
+    {
+        "base64Logo": null,
+        "claimType": "GC Supplier Registration",
+        "schemaName": "pspc.supplier-registration",
+        "schemaVersion": "1.0.0",
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "6",
+        "issuerServiceId": "5",
+        "issuerURL": "http://www.canada.ca"
+    },
+    {
+        "base64Logo": null,
+        "claimType": "Green Supplier",
+        "schemaName": "pspc.green-supplier",
+        "schemaVersion": "1.0.0",
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "7",
+        "issuerServiceId": "5",
+        "issuerURL": "http://www.canada.ca"
+    },
+    {
+        "base64Logo": null,
+        "claimType": "Supplier Performance Score",
+        "schemaName": "pspc.performance-score",
+        "schemaVersion": "1.0.0",
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "8",
+        "issuerServiceId": "5",
+        "issuerURL": "http://www.canada.ca"
+    },
+    {
+        "base64Logo": null,
+        "claimType": "Designated Organization Screening",
+        "schemaName": "cisd.designated-org-screening",
+        "schemaVersion": "1.0.0",
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "9",
+        "issuerServiceId": "6",
+        "issuerURL": "http://www.canada.ca"
+    },
+    {
+        "base64Logo": null,
+        "claimType": "Aboriginal Supplier",
+        "schemaName": "pspc.aboriginal-supplier",
+        "schemaVersion": "1.0.0",
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "10",
+        "issuerServiceId": "7",
+        "issuerURL": "http://www.canada.ca"
+    }
+]

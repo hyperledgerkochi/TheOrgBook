@@ -1,0 +1,29 @@
+[
+    {
+        "abbrv": "BC",
+        "displayOrder": "1",
+        "effectiveDate": "2010-10-10",
+        "endDate": null,
+        "id": "1",
+        "isOnCommonList": true,
+        "name": "British Columbia"
+    },
+	{
+        "abbrv": "GoC",
+        "displayOrder": "2",
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "2",
+        "isOnCommonList": true,
+        "name": "Government of Canada"
+    },
+    {
+        "abbrv": "PSPC",
+        "displayOrder": "3",
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "3",
+        "isOnCommonList": true,
+        "name": "Public Services and Procurement Canada"
+    }
+]

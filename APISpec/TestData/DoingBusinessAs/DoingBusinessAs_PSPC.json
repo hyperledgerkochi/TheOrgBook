@@ -1,0 +1,23 @@
+[
+    {
+        "dbaName": "Akal Veggies",
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "1",
+        "verifiableOrgId": "1"
+    },
+    {
+        "dbaName": "BBQ Nation",
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "2",
+        "verifiableOrgId": "2"
+    },
+    {
+        "dbaName": "Academics preKindergarten",
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "3",
+        "verifiableOrgId": "3"
+    }
+]
