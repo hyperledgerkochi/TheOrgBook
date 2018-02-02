@@ -25,6 +25,12 @@
 
       <div class="row">
         <div class="col-md-12 cert-info">
+          <div class="row form-group" *ngFor="let extra of props">
+            <label class="col-sm-4 control-label">{{extra.name}}</label>
+            <div class="col-sm-8 form-field">
+              {{extra.value}}
+            </div>
+          </div>
           <div class="row form-group">
             <label class="col-sm-4 control-label">Issuer</label>
             <div class="col-sm-8 form-field">

@@ -8,6 +8,18 @@
   text-decoration: none;
 }
 
+.guarantee {
+  text-align: center;
+  .business-badge {
+    display: inline-block;
+    width: 100px;
+  }
+  h2 {
+    font-size: 28px;
+    margin: 0;
+  }
+}
+
 .business-info, .business-certs {
   font-size: 1.7rem;
 }

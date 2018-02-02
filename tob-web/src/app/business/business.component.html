@@ -89,8 +89,11 @@
     </div>
 
     <div class="col-md-4 col-sm-5 hidden-xs">
-      <div class="business-badge">
-        <img src="/assets/ribbon.svg" alt="Verified">
+      <div class="well guarantee">
+        <div class="business-badge">
+          <img src="/assets/ribbon.svg" alt="Verified">
+        </div>
+        <h2>Verified GC Supplier</h2>
       </div>
     </div>
   </div>
@@ -107,7 +110,8 @@
             </div>
             <div class="panel-body cert-main">
               <div class="cert-info">
-                <div class="issuer">{{grp.top.issuer.name}}</div>
+                <div class="issuer" *ngIf="grp.top.issuer.id &gt; 5">PSPC-{{grp.top.issuer.issuerOrgTLA}}</div>
+                <div class="issuer" *ngIf="grp.top.issuer.id &lt;= 5">{{grp.top.issuer.name}}</div>
                 <div class="year">{{grp.top.effectiveDate}}</div>
                 <div class="others text-muted" *ngIf="grp.top.inactiveReason && grp.top.inactiveReason.id">
                   <strong class="text-danger">{{grp.top.inactiveReason.shortReason}}</strong>

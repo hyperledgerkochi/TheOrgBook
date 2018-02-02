@@ -14,6 +14,7 @@ export class CertComponent implements OnInit {
   loaded: boolean;
   record: VerifiableClaim;
   others: VerifiableClaim[];
+  props: any[];
   error: string;
   sub: any;
 
@@ -28,6 +29,20 @@ export class CertComponent implements OnInit {
       loaded.then(status => {
         this.dataService.loadRecord('verifiableclaims', ''+this.id).subscribe((record : VerifiableClaim) => {
           let claim = this.dataService.formatClaim(record);
+          let json = claim.claimJSON;
+          let props = [];
+          if(json && typeof json === 'string') {
+            let jso = JSON.parse(json);
+            if(jso) {
+              for(let k in jso) {
+                if((typeof jso === 'number' || typeof jso === 'string') && k.indexOf('_') < 0) {
+                  let name = k.substring(0, 1).toUpperCase() + k.substring(1);
+                  props.push({key: k, name: name, value: ''+jso[k]});
+                }
+              }
+            }
+          }
+          this.props = props;
           console.log('vo claim:', claim);
           if (! claim) this.error = 'Record not found';
           else {
