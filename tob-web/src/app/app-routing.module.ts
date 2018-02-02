@@ -20,21 +20,26 @@ const routes: Routes = [
     }
   },
   {
-    path: 'business/:recordId',
-    component: BusinessComponent,
+    path: 'org/:orgId',
     data: {
       breadcrumb: 'Supplier Certifications'
-    }
+    },
+    children: [
+      {
+        path: '',
+        component: BusinessComponent
+      },
+      {
+        path: 'cert/:certId',
+        component: CertComponent,
+        data: {
+          breadcrumb: 'Certification Details'
+        }
+      }
+    ]
   },
   {
-    path: 'cert/:recordId',
-    component: CertComponent,
-    data: {
-      breadcrumb: 'Certification Details'
-    }
-  },
-  {
-    path: 'issuer/:recordId',
+    path: 'issuer/:issuerId',
     component: IssuerComponent,
     data: {
       breadcrumb: 'Issuer Details'
