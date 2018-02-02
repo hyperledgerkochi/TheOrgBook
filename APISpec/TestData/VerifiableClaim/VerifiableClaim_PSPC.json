@@ -54,7 +54,7 @@
         "verifiableOrgId": "2"
     },
     {
-        "claimJSON": "{\"status\": \"active\"}",
+        "claimJSON": "{\"status\": \"Active\"}",
         "claimType": "6",
         "effectiveDate": "2018-01-01",
         "endDate": null,
@@ -126,7 +126,7 @@
         "verifiableOrgId": "3"
     },
     {
-        "claimJSON": "{\"status\": \"active\"}",
+        "claimJSON": "{\"status\": \"Active\"}",
         "claimType": "6",
         "effectiveDate": "2018-01-01",
         "endDate": null,

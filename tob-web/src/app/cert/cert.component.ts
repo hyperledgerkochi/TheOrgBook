@@ -35,7 +35,7 @@ export class CertComponent implements OnInit {
             let jso = JSON.parse(json);
             if(jso) {
               for(let k in jso) {
-                if((typeof jso === 'number' || typeof jso === 'string') && k.indexOf('_') < 0) {
+                if((typeof jso[k] === 'number' || typeof jso[k] === 'string') && k.indexOf('_') < 0) {
                   let name = k.substring(0, 1).toUpperCase() + k.substring(1);
                   props.push({key: k, name: name, value: ''+jso[k]});
                 }

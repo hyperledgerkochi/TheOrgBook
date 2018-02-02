@@ -15,7 +15,7 @@
     <div class="col-md-8 col-sm-7">
       <h1 class="business-title">{{record.org.legalName}}</h1>
 
-      <a [routerLink]="['/org', record.verifiableOrgId]" class="title-back-link mrgn-bttm-md"><span class="fa fa-arrow-left"></span> Back to Supplier Registrations</a>
+      <a [routerLink]="['/org', record.verifiableOrgId]" class="title-back-link mrgn-bttm-md"><span class="fa fa-arrow-left"></span> Back to Supplier Certifications</a>
 
       <h2 class="cert-title">{{record.type.claimType}}</h2>
 
@@ -34,17 +34,18 @@
           <div class="row form-group">
             <label class="col-sm-4 control-label">Issuer</label>
             <div class="col-sm-8 form-field">
+              <div *ngIf="record.issuer.id &gt; 4">Public Works and Government Services Canada</div>
               <a [routerLink]="['/issuer/', record.issuer.id]">{{record.issuer.name}}</a>
             </div>
           </div>
-          <div class="row form-group" *ngIf="record.type.issuerURL && record.type.issuerURL !== 'no'">
+          <!-- div class="row form-group" *ngIf="record.type.issuerURL && record.type.issuerURL !== 'no'">
             <label class="col-sm-4 control-label">Issuer Website</label>
             <div class="col-sm-8 form-field">
               <a [href]="record.type.issuerURL" rel="external">
                 {{record.type.issuerURL}}</a>
               <small><span class="fa fa-external-link"></span></small>
             </div>
-          </div>
+          </div -->
           <div class="row form-group">
             <label class="col-sm-4 control-label">Issued</label>
             <div class="col-sm-8 form-field">

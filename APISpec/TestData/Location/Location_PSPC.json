@@ -49,7 +49,7 @@
     },
     {
         "addlDeliveryInfo": null,
-        "addressee": null,
+        "addressee": "Akal Trading Company Inc.",
         "doingBusinessAsId": null,
         "effectiveDate": "2018-01-01",
         "endDate": null,
@@ -65,7 +65,7 @@
     },
     {
         "addlDeliveryInfo": null,
-        "addressee": null,
+        "addressee": "Peri Peri Grill Restaurant Inc.",
         "doingBusinessAsId": null,
         "effectiveDate": "2018-01-01",
         "endDate": null,
@@ -81,7 +81,7 @@
     },
     {
         "addlDeliveryInfo": null,
-        "addressee": null,
+        "addressee": "Eracude Systems Inc.",
         "doingBusinessAsId": null,
         "effectiveDate": "2018-01-01",
         "endDate": null,
