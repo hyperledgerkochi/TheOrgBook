@@ -15,6 +15,7 @@ services:
       - "${WEB_HTTP_PORT}:8080"
     depends_on:
       - tob-api
+    restart: always
 
   # 
   # tob-api
@@ -58,7 +59,8 @@ services:
         echo sleeping ...;
         sleep 10;
         /usr/libexec/s2i/run;
-      "      
+      "
+    restart: always
 
   # 
   # schema-spy
@@ -88,7 +90,8 @@ services:
         echo sleeping ...;
         sleep 20;
         exec npm start;
-      "      
+      "
+    restart: always
     
   # 
   # tob-solr
@@ -101,6 +104,7 @@ services:
       - tob
     ports:
       - 8983:8983
+    restart: always
 
   # 
   # tob-db
@@ -116,7 +120,8 @@ services:
     ports:
       - 5432:5432
     # volumes:
-      # - tob-data:/var/lib/pgsql/data     
+      # - tob-data:/var/lib/pgsql/data
+    restart: always
 
 networks:
   tob:
