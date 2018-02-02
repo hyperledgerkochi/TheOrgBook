@@ -46,5 +46,54 @@
         "streetAddress": "15300 Croydon Dr",
         "unitNumber": null,
         "verifiableOrgId": "3"
+    },
+    {
+        "addlDeliveryInfo": null,
+        "addressee": null,
+        "doingBusinessAsId": null,
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "4",
+        "latLong": "",
+        "locationTypeId": "1",
+        "municipality": "Surrey",
+        "postalCode": "V3T 4D3",
+        "province": "BC",
+        "streetAddress": "12788 76A Ave",
+        "unitNumber": null,
+        "verifiableOrgId": "1"
+    },
+    {
+        "addlDeliveryInfo": null,
+        "addressee": null,
+        "doingBusinessAsId": null,
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "5",
+        "latLong": "",
+        "locationTypeId": "1",
+        "municipality": "Surrey",
+        "postalCode": "V3T 4Y9",
+        "province": "BC",
+        "streetAddress": "7238 137 St",
+        "unitNumber": null,
+        "verifiableOrgId": "2"
+    },
+    {
+        "addlDeliveryInfo": null,
+        "addressee": null,
+        "doingBusinessAsId": null,
+        "effectiveDate": "2018-01-01",
+        "endDate": null,
+        "id": "6",
+        "latLong": "",
+        "locationTypeId": "2",
+        "municipality": "Surrey",
+        "postalCode": "V3T 7S4",
+        "province": "BC",
+        "streetAddress": "15300 Croydon Dr",
+        "unitNumber": null,
+        "verifiableOrgId": "3"
     }
+
 ]
