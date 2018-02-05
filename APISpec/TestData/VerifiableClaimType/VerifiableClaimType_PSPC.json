@@ -57,8 +57,8 @@
     },
     {
         "base64Logo": null,
-        "claimType": "Green Supplier",
-        "schemaName": "pspc.green-supplier",
+        "claimType": "Women-Owned Business",
+        "schemaName": "pspc.women-owned",
         "schemaVersion": "1.0.0",
         "effectiveDate": "2018-01-01",
         "endDate": null,

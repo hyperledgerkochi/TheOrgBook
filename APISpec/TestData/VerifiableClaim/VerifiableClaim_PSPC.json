@@ -1,53 +1,53 @@
 [
     {
-        "claimJSON": null,
-        "claimType": "1",
-        "effectiveDate": "2016-12-27",
+        "claimJSON": "{\"status\": \"Active\"}",
+        "claimType": "6",
+        "effectiveDate": "2018-01-01",
         "endDate": null,
         "id": "1",
         "inactiveClaimReasonId": null,
         "verifiableOrgId": "1"
     },
     {
-        "claimJSON": null,
-        "claimType": "2",
-        "effectiveDate": "2016-09-22",
+        "claimJSON": "{\"status\": \"Active\"}",
+        "claimType": "7",
+        "effectiveDate": "2018-01-01",
         "endDate": null,
         "id": "2",
         "inactiveClaimReasonId": null,
         "verifiableOrgId": "1"
     },
     {
-        "claimJSON": null,
-        "claimType": "3",
-        "effectiveDate": "2016-01-1",
+        "claimJSON": "{\"status\": \"Active\"}",
+        "claimType": "10",
+        "effectiveDate": "2018-01-01",
         "endDate": null,
         "id": "3",
         "inactiveClaimReasonId": null,
         "verifiableOrgId": "1"
     },
     {
-        "claimJSON": null,
-        "claimType": "1",
-        "effectiveDate": "2016-01-28",
+        "claimJSON": "{\"type\": \"Personnel Assigned\"}",
+        "claimType": "9",
+        "effectiveDate": "2018-01-01",
         "endDate": null,
         "id": "4",
         "inactiveClaimReasonId": null,
-        "verifiableOrgId": "2"
+        "verifiableOrgId": "1"
     },
-    {
-        "claimJSON": null,
-        "claimType": "2",
-        "effectiveDate": "2016-07-25",
+	{
+        "claimJSON": "{\"score\": 4}",
+        "claimType": "8",
+        "effectiveDate": "2008-08-05",
         "endDate": null,
         "id": "5",
         "inactiveClaimReasonId": null,
-        "verifiableOrgId": "2"
+        "verifiableOrgId": "1"
     },
     {
-        "claimJSON": null,
-        "claimType": "3",
-        "effectiveDate": "2017-01-21",
+        "claimJSON": "{\"status\": \"Active\"}",
+        "claimType": "6",
+        "effectiveDate": "2018-01-01",
         "endDate": null,
         "id": "6",
         "inactiveClaimReasonId": null,
@@ -55,92 +55,11 @@
     },
     {
         "claimJSON": "{\"status\": \"Active\"}",
-        "claimType": "6",
+        "claimType": "7",
         "effectiveDate": "2018-01-01",
         "endDate": null,
         "id": "7",
         "inactiveClaimReasonId": null,
         "verifiableOrgId": "2"
-    },
-    {
-        "claimJSON": "{\"status\": \"Active\"}",
-        "claimType": "7",
-        "effectiveDate": "2018-01-01",
-        "endDate": null,
-        "id": "8",
-        "inactiveClaimReasonId": null,
-        "verifiableOrgId": "2"
-    },
-    {
-        "claimJSON": "{\"status\": \"Active\"}",
-        "claimType": "10",
-        "effectiveDate": "2018-01-01",
-        "endDate": null,
-        "id": "9",
-        "inactiveClaimReasonId": null,
-        "verifiableOrgId": "2"
-    },
-    {
-        "claimJSON": "{\"type\": \"Personnel Assigned\"}",
-        "claimType": "9",
-        "effectiveDate": "2018-01-01",
-        "endDate": null,
-        "id": "10",
-        "inactiveClaimReasonId": null,
-        "verifiableOrgId": "2"
-    },
-	{
-        "claimJSON": "{\"score\": 4}",
-        "claimType": "8",
-        "effectiveDate": "2008-08-05",
-        "endDate": null,
-        "id": "11",
-        "inactiveClaimReasonId": null,
-        "verifiableOrgId": "2"
-    },
-    {
-        "claimJSON": null,
-        "claimType": "1",
-        "effectiveDate": "2017-04-19",
-        "endDate": null,
-        "id": "12",
-        "inactiveClaimReasonId": null,
-        "verifiableOrgId": "3"
-    },
-    {
-        "claimJSON": null,
-        "claimType": "2",
-        "effectiveDate": "2016-01-08",
-        "endDate": null,
-        "id": "13",
-        "inactiveClaimReasonId": null,
-        "verifiableOrgId": "3"
-    },
-    {
-        "claimJSON": null,
-        "claimType": "3",
-        "effectiveDate": "2016-07-31",
-        "endDate": null,
-        "id": "14",
-        "inactiveClaimReasonId": null,
-        "verifiableOrgId": "3"
-    },
-    {
-        "claimJSON": "{\"status\": \"Active\"}",
-        "claimType": "6",
-        "effectiveDate": "2018-01-01",
-        "endDate": null,
-        "id": "15",
-        "inactiveClaimReasonId": null,
-        "verifiableOrgId": "3"
-    },
-    {
-        "claimJSON": "{\"status\": \"Active\"}",
-        "claimType": "7",
-        "effectiveDate": "2018-01-01",
-        "endDate": null,
-        "id": "16",
-        "inactiveClaimReasonId": null,
-        "verifiableOrgId": "3"
     }
 ]
