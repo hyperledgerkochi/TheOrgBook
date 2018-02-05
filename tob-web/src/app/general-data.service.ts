@@ -275,5 +275,21 @@ export class GeneralDataService {
     return req;
   }
 
+  deleteRecord (mod: string, id: string) {
+    return new Promise(resolve => {
+      let baseurl = this.getRequestUrl(mod + '/' + id + '/delete');
+      let req = this.http.post(baseurl, {params: {id}})
+        .catch(error => {
+          console.error(error);
+          resolve(null);
+          return Observable.throw(error);
+        });
+      req.subscribe(data => {
+        console.log('delete result', data);
+        resolve(data);
+      });
+    });
+  }
+
 }
 

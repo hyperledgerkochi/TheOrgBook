@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { GeneralDataService } from 'app/general-data.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Location, LocationType, VerifiableOrg, VerifiableOrgType, IssuerService, VerifiableClaim, VerifiableClaimType, DoingBusinessAs,
   blankLocation, blankOrgType, blankLocationType, blankIssuerService, blankClaimType } from '../data-types';
 
@@ -22,6 +22,7 @@ export class BusinessComponent implements OnInit, OnDestroy {
 
   constructor(
     private dataService: GeneralDataService,
+    private router: Router,
     private route: ActivatedRoute) { }
 
   ngOnInit() {
@@ -101,5 +102,12 @@ export class BusinessComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.sub.unsubscribe();
+  }
+
+  performDelete(evt) {
+    evt.preventDefault();
+    this.dataService.deleteRecord('verifiableorgs', ''+this.id).then( (data) => {
+      //this.router.navigate(['/']);
+    });
   }
 }
