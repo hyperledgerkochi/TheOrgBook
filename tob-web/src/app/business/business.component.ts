@@ -107,7 +107,7 @@ export class BusinessComponent implements OnInit, OnDestroy {
   performDelete(evt) {
     evt.preventDefault();
     this.dataService.deleteRecord('verifiableorgs', ''+this.id).then( (data) => {
-      //this.router.navigate(['/']);
+      this.router.navigate(['/']);
     });
   }
 }
