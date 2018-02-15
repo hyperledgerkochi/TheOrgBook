@@ -111,8 +111,9 @@
             </div>
             <div class="panel-body cert-main">
               <div class="cert-info">
-                <div class="issuer" *ngIf="grp.top.issuer.id &gt; 4">PSPC-{{grp.top.issuer.issuerOrgTLA}}</div>
-                <div class="issuer" *ngIf="grp.top.issuer.id &lt;= 4">{{grp.top.issuer.name}}</div>
+                <div class="issuer" *ngIf="grp.top.issuer.id &gt; 4 && grp.top.issuer.id != 7">PSPC-{{grp.top.issuer.issuerOrgTLA}}</div>
+                <div class="issuer" *ngIf="grp.top.issuer.id &lt;= 5 && grp.top.issuer.id != 7">{{grp.top.issuer.name}}</div>
+                <div class="issuer" *ngIf="grp.top.issuer.id == 7">{{grp.top.issuer.issuerOrgTLA}}</div>
                 <div class="year">{{grp.top.effectiveDate}}</div>
                 <div class="others text-muted" *ngIf="grp.top.inactiveReason && grp.top.inactiveReason.id">
                   <strong class="text-danger">{{grp.top.inactiveReason.shortReason}}</strong>
