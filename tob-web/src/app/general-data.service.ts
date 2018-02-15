@@ -265,11 +265,11 @@ export class GeneralDataService {
     return base.sort((a, b) => b.effectiveDate.localeCompare(a.effectiveDate));
   }
 
-  loadJson(url) : Observable<Object> {
-    let req = this.http.get(url)
+  loadJson(url, params?) : Observable<Object> {
+    let req = this.http.get(url, {params: params})
       .map((res: Response) => res.json())
       .catch(error => {
-        console.error(error);
+        console.error("JSON load error", error);
         return Observable.throw(error);
       });
     return req;
@@ -286,6 +286,21 @@ export class GeneralDataService {
         });
       req.subscribe(data => {
         console.log('delete result', data);
+        resolve(data);
+      });
+    });
+  }
+
+  verifyClaim (claimId: string) {
+    return new Promise((resolve, reject) => {
+      let baseurl = this.getRequestUrl('verifiableclaims/' + claimId + '/verify');
+      let req = this.loadJson(baseurl, {t: new Date().getTime()})
+        .catch(error => {
+          reject(error);
+          return Observable.throw(error);
+        });
+      req.subscribe(data => {
+        console.log('verify result', data);
         resolve(data);
       });
     });

@@ -30,7 +30,7 @@
             </div>
           </div>
           <div class="row form-group" *ngIf="record.issuerOrgURL">
-            <label class="col-sm-4 control-label">URL</label>
+            <label class="col-sm-4 control-label" translate>issuer.website</label>
             <div class="col-sm-8 form-field">
               <a [href]="record.issuerOrgURL" rel="external">
                 {{record.issuerOrgURL}}</a>
@@ -47,13 +47,13 @@
             </div>
           </div>
           <div class="row form-group">
-            <label class="col-sm-4 control-label">Effective Date</label>
+            <label class="col-sm-4 control-label" translate>issuer.effective-date</label>
             <div class="col-sm-8 form-field">
               {{record.effectiveDate}}
             </div>
           </div>
           <div class="row form-group">
-            <label class="col-sm-4 control-label">Expiry Date</label>
+            <label class="col-sm-4 control-label" translate>issuer.expiry-date</label>
             <div class="col-sm-8 form-field">
               {{record.endDate || '-'}}
             </div>
@@ -66,7 +66,7 @@
   <div class="row mrgn-tp-md mrgn-bttm-lg issuer-certs" *ngIf="loaded">
     <hr>
     <div class="col-sm-12">
-      <label class="control-label"><span class="field-name">Permit and License Types</span></label>
+      <label class="control-label"><span class="field-name">issuer.cert-types</span></label>
       <div class="types-outer">
         <div *ngFor="let type of claimTypes" class="cert">
           <div class="panel panel-cert cert-panel">
@@ -82,7 +82,7 @@
         </div>
       </div>
       <div *ngIf="!claimTypes.length">
-        <em class="text-muted">None</em>
+        <em class="text-muted" translate>general.none</em>
       </div>
     </div>
   </div>

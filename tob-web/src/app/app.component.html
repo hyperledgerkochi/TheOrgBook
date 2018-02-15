@@ -75,7 +75,15 @@
 
 <main role="main" property="mainContentOfPage" class="container">
 
-  <router-outlet></router-outlet>
+  <div class="row mrgn-tp-lg" *ngIf="!inited">
+    <div class="col-sm-12 page-load">
+      <div class="loading-indicator"></div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="inited">
+    <router-outlet></router-outlet>
+  </ng-container>
 
 <div class="pagedetails">
 <dl id="wb-dtmd">
