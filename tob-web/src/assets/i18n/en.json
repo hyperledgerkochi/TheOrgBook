@@ -1,10 +1,10 @@
 {
   "app": {
     "breadcrumb": "Home",
-    "title": "TheOrgBook Demo",
+    "title": "PSPC Supplier Certifications Register Demo",
     "header": {
-      "title": "TheOrgBook",
-      "logo-alt-text": "B.C. Government Logo"
+      "title": "PSPC Supplier Certifications Register",
+      "logo-alt-text": "Government of Canada Logo"
     },
     "footer": {
       "disclaimer": "Disclaimer",
@@ -15,24 +15,24 @@
     }
   },
   "cert": {
-    "breadcrumb": "Permit and License Info",
-    "effective-date": "Effective Date",
-    "expiry-date": "Expiry Date",
+    "breadcrumb": "Certification Details",
+    "effective-date": "Issued",
+    "expiry-date": "Expires",
     "inactive-message": "This credential is inactive:",
     "issuer": "Issuer",
     "issuer-website": "Issuer Website",
     "related-certs": "Related Credentials",
     "requesting-proof": "Requesting proof of credential ...",
-    "return-link": "Back to Permit and License Info",
+    "return-link": "Back to Certification Details",
     "verify-button-label": "Verify Credential",
     "whats-this-link": "What's this?",
     "verify-status": "Verification Status:"
   },
   "dashboard": {
     "breadcrumb": "Search",
-    "title": "Welcome to British Columbia's Verifiable Organizations",
+    "title": "PSPC Supplier Certifications Register",
     "title-orgs": "organizations",
-    "title-certs": "permits and licenses"
+    "title-certs": "permits and licences"
   },
   "general": {
     "none": "None",
@@ -42,11 +42,11 @@
     "verified": "Verified"
   },
   "issuer": {
-    "breadcrumb": "Issuer Service",
-    "cert-types": "Permit and License Types",
+    "breadcrumb": "Issuer Details",
+    "cert-types": "Permit and Licence Types",
     "effective-date": "Effective Date",
     "expiry-date": "Expiry Date",
-    "website": "Issuer Website"
+    "website": "URL"
   },
   "not-found": {
     "breadcrumb": "Not Found",
@@ -55,13 +55,13 @@
     "return-link-title": "Return to the home page"
   },
   "org": {
-    "breadcrumb": "Organization Info",
-    "certs-title": "Permits and Licenses",
+    "breadcrumb": "Supplier Certifications",
+    "certs-title": "Supplier Certifications",
     "dba": "Doing Business As",
     "effective-date": "Effective Date",
-    "identifier": "Organization Identifier",
+    "identifier": "Supplier PBN",
     "locations": "Locations",
-    "return-link": "Back to Organization Info",
+    "return-link": "Back to Supplier Certifications",
     "type": "Organization Type"
   },
   "recipe": {
@@ -69,8 +69,8 @@
     "title": "Recipe"
   },
   "search": {
-    "by-name": "Search by Name",
-    "by-location": "Search by Location",
+    "by-name": "Name",
+    "by-location": "Location",
     "no-results": "No results",
     "placeholder": "search",
     "results-title": "Search Results",
