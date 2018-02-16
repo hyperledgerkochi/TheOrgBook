@@ -34,6 +34,22 @@
     "title-orgs": "organizations",
     "title-certs": "permits and licences"
   },
+  "gcweb": {
+    "about-title": "About this site",
+    "about-govt-title": "About government",
+    "date-modified": "Date modified: ",
+    "here-title": "You are here:",
+    "language-sel-title": "Language selection",
+    "page-top-link": "Top of Page",
+    "report-link": "Report a problem on this page",
+    "search-menus-title": "Search and menus",
+    "search-placeholder": "Search Canada.ca",
+    "search-title": "Search",
+    "search-website": "Search website",
+    "skip-about-link": "Skip to \"About government\"",
+    "skip-main-link": "Skip to main content",
+    "topics-title": "Topics menu"
+  },
   "general": {
     "none": "None",
     "map-link": "Show on map",
@@ -74,8 +90,10 @@
     "title": "Recipe"
   },
   "search": {
-    "by-name": "Name",
+    "by-cert": "Certification",
     "by-location": "Location",
+    "by-name": "Name",
+    "by-pbn": "PBN",
     "no-results": "No results",
     "placeholder": "search",
     "results-title": "Search Results",

@@ -38,6 +38,7 @@ export class MyMissingTranslationHandler implements MissingTranslationHandler {
     // params: {key, translateService}
     if(params.key.substring(0, ROUTE_PREFIX.length) === ROUTE_PREFIX)
       return;
+    console.warn("missing translation: " + params.key);
     return '??' + params.key + '??';
   }
 }
