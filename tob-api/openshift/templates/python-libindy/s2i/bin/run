@@ -3,6 +3,9 @@
 
 set -e
 
+# activate pip virtualenv
+source /opt/app-root/bin/activate
+
 function is_gunicorn_installed() {
   hash gunicorn &>/dev/null
 }
@@ -18,8 +21,8 @@ function should_migrate() {
 # Guess the number of workers according to the number of cores
 function get_default_web_concurrency() {
 
-  
-  # We limit processes to 1 since libindy wallet 
+
+  # We limit processes to 1 since libindy wallet
   # can only be used by 1 process
   echo 1
   return

@@ -123,10 +123,14 @@ build-api() {
   #
   # tob-api
   #
-  echo -e "\nBuilding libindy image ..."
+  #echo -e "\nBuilding libindy image ..."
+  #docker build \
+  #  -t 'libindy' \
+  #  -f '../tob-api/openshift/templates/libindy/Dockerfile' '../tob-api/openshift/templates/libindy/'
+
   docker build \
-    -t 'libindy' \
-    -f '../tob-api/openshift/templates/libindy/Dockerfile' '../tob-api/openshift/templates/libindy/'
+    'https://github.com/cywolf/python-libindy-alpine.git' \
+    -t 'python-libindy-alpine'
 
   echo -e "\nBuilding python-libindy image ..."
   docker build \

@@ -44,7 +44,8 @@ if [[ ! -z "$ENABLE_PIPENV" ]]; then
   pipenv check
 elif [[ -f requirements.txt ]]; then
   echo "---> Installing dependencies ..."
-  pip install -r requirements.txt
+  source /opt/app-root/bin/activate
+  pip --no-cache-dir install -r requirements.txt
 elif [[ -f setup.py ]]; then
   echo "---> Installing application ..."
   python setup.py develop
