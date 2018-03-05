@@ -19,6 +19,7 @@ from api.models.VerifiableOrgType import VerifiableOrgType
 from api.models.VerifiableOrg import VerifiableOrg
 from api.indy import eventloop
 import datetime
+import json
 
 # ToDo:
 # * The code is currently making assumtions in order to fill in gaps in the infomration provided with a claim.
@@ -29,23 +30,23 @@ class ClaimProcesser(object):
 
     def __init__(self) -> None:
       self.__logger = logging.getLogger(__name__)
-    
+
     def __ToDate(self, timeStamp: str):
       date = None
-      if timeStamp: 
+      if timeStamp:
         try:
           date = datetime.datetime.utcfromtimestamp(int(timeStamp)).date()
         except:
           pass
 
       return date
-      
+
     def __get_VerifiableClaimType(self, claim: ClaimParser):
       # VerifiableClaimTypes are registered by issuers.
       # If the VerifiableClaimType has not been registered we can't accept the claim.
       # VerifiableClaimType.claimType is the friendly name of the claim.
       schemaName = claim.schemaName
-      
+
       schema = claim.schema
       if not schema:
         raise Exception('Could not retrieve schema from ledger.')
@@ -53,15 +54,16 @@ class ClaimProcesser(object):
       verifiableClaimType = VerifiableClaimType.objects.filter(
         schemaName=schema['data']['name'],
         schemaVersion=schema['data']['version'],
-        issuerServiceId__DID=schema['identifier']
+        issuerServiceId__DID=schema['dest']
       )
 
       if not verifiableClaimType:
-        self.__logger.warn("VerifiableClaimType, {0}, has not been registered ...".format(schemaName))
+        self.__logger.warn("VerifiableClaimType, {0}, has not been registered ... {1}".format(
+          schemaName, json.dumps(schema)))
       else:
         self.__logger.debug("VerifiableClaimType, {0}, exists ...".format(schemaName))
         verifiableClaimType = verifiableClaimType[0]
-      
+
       return verifiableClaimType
 
     def __get_VerifiableOrg(self, claim: ClaimParser):
@@ -78,25 +80,25 @@ class ClaimProcesser(object):
 
     def __get_VerifiableOrgType(self, claim: ClaimParser):
       orgTypeCode = claim.getField("org_type")
-      
-      verifiableOrgType = VerifiableOrgType.objects.filter(orgType=orgTypeCode)      
+
+      verifiableOrgType = VerifiableOrgType.objects.filter(orgType=orgTypeCode)
       if not verifiableOrgType:
         self.__logger.debug("VerifiableOrgType, {0}, does not exist.  Creating ...".format(orgTypeCode))
         verifiableOrgType = VerifiableOrgType(
           orgType = orgTypeCode,
           description = orgTypeCode,
-          displayOrder = 0          
+          displayOrder = 0
         )
         verifiableOrgType.save()
       else:
         self.__logger.debug("VerifiableOrgType, {0}, exists ...".format(orgTypeCode))
         verifiableOrgType = verifiableOrgType[0]
-      
+
       return verifiableOrgType
 
     def __get_Jurisdiction(self, claim: ClaimParser):
       jurisdictionName = claim.getField("city")
-      
+
       jurisdiction = Jurisdiction.objects.filter(name=jurisdictionName)
       if not jurisdiction:
         self.__logger.debug("Jurisdiction, {0}, does not exist.  Creating ...".format(jurisdictionName))
@@ -110,11 +112,11 @@ class ClaimProcesser(object):
       else:
         self.__logger.debug("Jurisdiction, {0}, exists ...".format(jurisdictionName))
         jurisdiction = jurisdiction[0]
-      
+
       return jurisdiction
 
     def __get_LocationType(self, locationTypeName: str):
-      
+
       locationType = LocationType.objects.filter(locType=locationTypeName)
       if not locationType:
         self.__logger.debug("LocationType, {0}, does not exist.  Creating ...".format(locationTypeName))
@@ -127,7 +129,7 @@ class ClaimProcesser(object):
       else:
         self.__logger.debug("LocationType, {0}, exists ...".format(locationTypeName))
         locationType = locationType[0]
-      
+
       return locationType
 
     def __CreateOrUpdateVerifiableOrg(self, claim: ClaimParser, verifiableOrg: VerifiableOrg):
@@ -187,14 +189,14 @@ class ClaimProcesser(object):
 
       return doingBusinessAs
 
-    def __CreateOrUpdateVerifiableClaim(self, claim: ClaimParser, verifiableClaimType: VerifiableClaimType, verifiableOrg: VerifiableOrg):      
+    def __CreateOrUpdateVerifiableClaim(self, claim: ClaimParser, verifiableClaimType: VerifiableClaimType, verifiableOrg: VerifiableOrg):
       self.__logger.debug("Creating or updating the verifiable claim ...")
-      
+
       # We don't have enough information to update an existing claim.
       verifiableClaim = VerifiableClaim.objects.filter(claimJSON=claim.json)
       effectiveDate = self.__ToDate(claim.getField("effective_date"))
       endDate = self.__ToDate(claim.getField("end_date"))
-      
+
       if not verifiableClaim:
         self.__logger.debug("The verifiable claim does not exist.  Creating ...")
         verifiableClaim = VerifiableClaim(
@@ -210,7 +212,7 @@ class ClaimProcesser(object):
       else:
         self.__logger.debug("The VerifiableClaim already exists ...")
         verifiableClaim = verifiableClaim[0]
-      
+
       return verifiableClaim
 
     def __CreateOrUpdateLocation(self, claim: ClaimParser, verifiableOrg: VerifiableOrg, doingBusinessAs: DoingBusinessAs, locationTypeName: str):
@@ -273,8 +275,8 @@ class ClaimProcesser(object):
       async with Holder() as holder:
         self.__logger.debug("Storing the claim in the wallet ...")
         await holder.store_claim(claim)
-    
-    def SaveClaim(self, claimJson):      
+
+    def SaveClaim(self, claimJson):
       claim = ClaimParser(claimJson)
       self.__logger.debug(">>> Processing {0} claim ...\n{1}".format(claim.schemaName, claimJson))
 
@@ -289,7 +291,7 @@ class ClaimProcesser(object):
       # ToDo:
       # - Don't hard code the claim types at this level.  Get things working and refactor.
       # - Create claim processors that know how to deal with given claims.
-      if claim.schemaName == "incorporation.bc_registries":
+      if claim.schemaName == "incorporation.bc_registries" or claim.schemaName == "pspc-sri.gc-vendor-credential":
         verifiableOrg = self.__CreateOrUpdateVerifiableOrg(claim, verifiableOrg)
         location = self.__CreateOrUpdateLocation(claim, verifiableOrg, None, "Headquarters")
 
