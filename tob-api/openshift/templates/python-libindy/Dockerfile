@@ -60,10 +60,10 @@ RUN chgrp -R 0 $HOME \
   && chmod -R ug+rwx $HOME
 
 # Cache bust this every build
-ARG genesis_txn="$BUILD/genesis"
-RUN wget -O "$genesis_txn" "$LEDGER_URL/genesis"
-RUN chown -R indy:0 "$genesis_txn" \
-  && chmod -R ug+rwx "$genesis_txn"
+#ARG genesis_txn="$BUILD/genesis"
+#RUN wget -O "$genesis_txn" "$LEDGER_URL/genesis"
+#RUN chown -R indy:0 "$genesis_txn" \
+#  && chmod -R ug+rwx "$genesis_txn"
 
 RUN apk --no-cache add bash git postgresql-dev
 
