@@ -28,6 +28,26 @@ usage() {
           You need to do this first, since the builds require
           a combination of Docker and S2I builds.
 
+          You can build individual components as shown below, components that have dependencies will have these dependencies built too.
+
+          Examples:
+           - Build the web UI only
+
+            $0 build tob-web
+ 
+           - Build the API server only.
+ 
+            $0 build tob-api
+
+           - Build the Solr Search Engine server only.
+       
+            $0 build tob-solr
+
+          By default all containers that components comprise of, will be rebuilt.
+
+            $0 build
+
+
   start - Creates the application containers from the built images
           and starts the services based on the docker-compose.yml file.
 
@@ -41,15 +61,13 @@ usage() {
           $0 start tob-solr
           $0 start tob-web
           $0 start tob-web API_URL=http://docker.for.win.localhost:56325/api/v1
+          $0 start tob-api
 
   stop - Stops the services.  This is a non-destructive process.  The containers
          are not deleted so they will be reused the next time you run start.
 
   rm - Removes any existing application containers.
 
-  build-api - Build the API server only.
-  
-  build-solr - Build the Solr Search Engine server only.
 EOF
 exit 1
 }
@@ -76,6 +94,7 @@ build-web() {
   echo -e "\nBuilding angular-app image ..."
   ${S2I_EXE} build \
   	-e "NG_BASE_HREF=${WEB_BASE_HREF}" \
+  	-e "TOB_THEME=${TOB_THEME}" \
     '../tob-web' \
     'centos/nodejs-6-centos7:6' \
     'angular-app'
@@ -154,6 +173,15 @@ buildImages() {
 }
 
 configureEnvironment () {
+
+  if [ -f .env ]; then
+  	while read line; do
+  		if [[ ! "$line" =~ ^\# ]] && [[ "$line" =~ .*= ]]; then
+  			export $line
+  		fi
+  	done < .env
+  fi
+
   for arg in $@; do
     case "$arg" in
       *=*)
@@ -191,7 +219,7 @@ configureEnvironment () {
   export CORE_NAME="the_org_book"
 
   # tob-api
-  export API_HTTP_PORT=${API_HTTP_PORT-8081}
+  export API_HTTP_PORT=${API_HTTP_PORT:-8081}
   export DATABASE_SERVICE_NAME="tob-db"
   export DATABASE_ENGINE="postgresql"
   export DATABASE_NAME=${POSTGRESQL_DATABASE}
@@ -204,7 +232,8 @@ configureEnvironment () {
   export LEDGER_URL=${LEDGER_URL-http://$DOCKERHOST:9000}
 
   # tob-web
-  export WEB_HTTP_PORT=${WEB_HTTP_PORT-8080}
+  export TOB_THEME=${TOB_THEME:-bcgov}
+  export WEB_HTTP_PORT=${WEB_HTTP_PORT:-8080}
   export WEB_BASE_HREF=${WEB_BASE_HREF:-/}
   export API_URL=${API_URL-http://tob-api:8080/api/v1/}
   export IpFilterRules='#allow all; deny all;'
@@ -254,18 +283,23 @@ case "$1" in
     docker-compose rm
     ;;
   build)
-  	configureEnvironment $@
-    buildImages
-    ;;
-  build-api)
-    build-api
-    ;;
-  build-solr)
-    build-solr
-    ;;
-  build-web)
-  	configureEnvironment $@
-    build-web
+    COMMAND=$1
+    shift
+    _startupParams=$(getStartupParams $@)
+    configureEnvironment $@
+    case "$@" in
+      tob-api)
+        build-api
+        ;;
+      tob-web)
+        build-web
+        ;;
+      tob-solr)
+        build-solr
+        ;;
+      *)
+       buildImages
+    esac
     ;;
   *)
     usage
