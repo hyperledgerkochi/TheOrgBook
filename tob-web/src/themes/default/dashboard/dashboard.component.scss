@@ -1,4 +1,3 @@
-@import "./dashboard.component.custom";
 
 #dashboard {
   min-height: 50vh;
@@ -124,25 +123,5 @@ $input-border: rgba(128, 173, 210, 0.9);
   }
 }
 
-
-// gcweb
-
-.stats {
-  color: #036;
-  .numbers {
-    color: #af3c43;
-  }
-}
-
-.results {
-  .row {
-    &:nth-of-type(odd) {
-      background-color: #fff;
-    }
-    &:nth-of-type(even) {
-      background-color: #f9f9f9;
-    }
-  }
-}
-
-
+//place all overrides for a specific theme in this file inside your theme/dashboard directory
+@import "../../_active/dashboard/dashboard.component.custom";

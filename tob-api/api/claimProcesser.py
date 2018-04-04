@@ -13,13 +13,14 @@ from api.models.VerifiableClaimType import VerifiableClaimType
 from api.models.IssuerService import IssuerService
 from api.models.VerifiableClaim import VerifiableClaim
 import logging
+import json
 import base64
 from api.models.Jurisdiction import Jurisdiction
 from api.models.VerifiableOrgType import VerifiableOrgType
 from api.models.VerifiableOrg import VerifiableOrg
 from api.indy import eventloop
 import datetime
-import json
+import time
 
 # ToDo:
 # * The code is currently making assumtions in order to fill in gaps in the infomration provided with a claim.
@@ -268,12 +269,21 @@ class ClaimProcesser(object):
       return location
 
     async def __StoreClaim(self, claim):
-      async with Holder() as holder:
+      self.__logger.debug(claim)
+      legal_entity_id = None
+      try:
+        legal_entity_id = json.loads(claim)["values"]["legal_entity_id"][0]
+        self.__logger.debug('Claim for legal_entity_id: %s' % legal_entity_id)
+      except Error as e:
+        # no-op
+        self.__logger.debug('Claim for NO legal_entity_id')
+      async with Holder(legal_entity_id) as holder:
         self.__logger.debug("Storing the claim in the wallet ...")
         await holder.store_claim(claim)
 
     def SaveClaim(self, claimJson):
       claim = ClaimParser(claimJson)
+      print(claimJson)
       self.__logger.debug(">>> Processing {0} claim ...\n{1}".format(claim.schemaName, claimJson))
 
       # If the claim type has not been registered, reject the claim.
@@ -287,7 +297,7 @@ class ClaimProcesser(object):
       # ToDo:
       # - Don't hard code the claim types at this level.  Get things working and refactor.
       # - Create claim processors that know how to deal with given claims.
-      if claim.schemaName == "incorporation.bc_registries" or claim.schemaName == "pspc-sri.gc-vendor-credential":
+      if "incorporation" in claim.schemaName or claim.schemaName == "pspc-sri.gc-vendor-credential":
         verifiableOrg = self.__CreateOrUpdateVerifiableOrg(claim, verifiableOrg)
         location = self.__CreateOrUpdateLocation(claim, verifiableOrg, None, "Headquarters")
 

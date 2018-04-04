@@ -1,0 +1,18 @@
+
+.stats {
+  color: #036;
+  .numbers {
+    color: #af3c43;
+  }
+}
+
+.results {
+  .row {
+    &:nth-of-type(odd) {
+      background-color: #fff;
+    }
+    &:nth-of-type(even) {
+      background-color: #f9f9f9;
+    }
+  }
+}
