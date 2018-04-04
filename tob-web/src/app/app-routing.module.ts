@@ -60,7 +60,7 @@ export const routes: Routes = [
   },
   {
     path: 'recipe',
-    redirectTo: 'recipe/start_a_restaurant'
+    redirectTo: 'recipe/sri_reg'
   },
   {
     path: 'recipe/:recipeId',
