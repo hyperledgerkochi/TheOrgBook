@@ -44,7 +44,6 @@ if [[ ! -z "$ENABLE_PIPENV" ]]; then
   pipenv check
 elif [[ -f requirements.txt ]]; then
   echo "---> Installing dependencies ..."
-  source /opt/app-root/bin/activate
   pip --no-cache-dir install -r requirements.txt
 elif [[ -f setup.py ]]; then
   echo "---> Installing application ..."
@@ -78,4 +77,4 @@ if should_collectstatic; then
 fi
 
 # set permissions for any installed artifacts
-fix-permissions /opt/app-root
+fix-permissions /home/indy

@@ -3,9 +3,6 @@
 
 set -e
 
-# activate pip virtualenv
-source /opt/app-root/bin/activate
-
 function is_gunicorn_installed() {
   hash gunicorn &>/dev/null
 }
