@@ -34,11 +34,11 @@ def config():
     """
     Get the hyperledger configuration settings for the environment.
     """
-    genesis_txn_path = "/home/indy/src/genesis"
+    genesis_txn_path = "/home/indy/genesis"
     platform_name = platform.system()
     if platform_name == "Windows":
-        genesis_txn_path = os.path.realpath("./src/genesis")
-
+        genesis_txn_path = os.path.realpath("./genesis")
+    
     checkGenesisFile(genesis_txn_path)
 
     return {
