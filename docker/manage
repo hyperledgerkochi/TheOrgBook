@@ -175,15 +175,23 @@ buildImages() {
   build-wallet
 }
 
+loadEnvFile () {
+  for path in $@; do
+    if [ -f "$path" ]; then
+      while read line; do
+        if [[ ! "$line" =~ ^\# ]] && [[ "$line" =~ .*= ]]; then
+          export $line
+        fi
+      done < "$path"
+      echo "loaded $path"
+      break
+    fi
+  done
+}
+
 configureEnvironment () {
 
-  if [ -f .env ]; then
-    while read line; do
-      if [[ ! "$line" =~ ^\# ]] && [[ "$line" =~ .*= ]]; then
-        export $line
-      fi
-    done < .env
-  fi
+  loadEnvFile .env default-env
 
   for arg in $@; do
     case "$arg" in
