@@ -57,10 +57,10 @@ class IssuerManager:
   Handle registration of issuer services, taking the JSON definition
   of the issuer and updating the related tables.
   """
-  
+
   def __init__(self):
     self.__logger = logging.getLogger(__name__)
-  
+
 
   def registerIssuer(self, request, spec):
     try:
@@ -80,7 +80,7 @@ class IssuerManager:
     jurisdiction = self.checkUpdateJurisdiction(spec['jurisdiction'])
     issuer = self.checkUpdateIssuerService(jurisdiction, spec['issuer'])
     ctypes = self.checkUpdateClaimTypes(issuer, spec.get('claim-types', []))
-    
+
     result = {
       'jurisdiction': {
         'id': jurisdiction.id,
@@ -106,7 +106,7 @@ class IssuerManager:
       ]
     }
     return result
-    
+
 
   def updateRecord(self, record, spec):
     update = False
@@ -122,11 +122,11 @@ class IssuerManager:
 
   def checkUpdateUser(self, verified, issuer_def):
     issuer_did = issuer_def['did'].strip()
-    display_name = issuer_def['name'].strip()
+    display_name = issuer_def['name'].strip()[:30]
     user_email = issuer_def['email'].strip()
     verified_did = verified['keyId']
     verkey = verified['key']
-    assert 'did:sov:{}'.format(issuer_did) == verified_did   
+    assert 'did:sov:{}'.format(issuer_did) == verified_did
     return create_issuer_user(user_email, verified_did, last_name=display_name, verkey=verkey)
 
 
@@ -153,7 +153,7 @@ class IssuerManager:
     issuer_name = issuer_def['name'].strip()
     issuer_abbr = issuer_def.get('abbreviation', '').strip() or None
     issuer_url = issuer_def.get('url', '').strip() or None
-    
+
     # search by DID
     issuer = IssuerService.objects.filter(DID=issuer_did)
     if not issuer:
@@ -186,13 +186,13 @@ class IssuerManager:
       skey = '{}:{}'.format(ctype.schemaName, ctype.schemaVersion)
       exist_by_schema[skey] = ctype
     results = []
-    
+
     for type_def in type_defs:
       type_name = type_def['name']
       type_schema = type_def['schema']
       type_version = type_def['version']
       type_endpoint = type_def.get('endpoint', '').strip() or None
-    
+
       skey = '{}:{}'.format(type_schema, type_version)
       if skey in exist_by_schema:
         claimtype = self.updateRecord(exist_by_schema[skey], {
@@ -209,10 +209,10 @@ class IssuerManager:
           schemaVersion=type_version
         )
       results.append(claimtype)
-    
+
     # clean up existing records
     for ctype in exist_by_schema.values():
       if ctype not in results:
         ctype.delete()
-    
+
     return results
