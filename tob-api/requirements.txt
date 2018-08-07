@@ -32,7 +32,7 @@ pysolr>=3.6.0,<4
 von-agent==1.1.2
 
 asyncio>=3.4.3,<4
-git+https://github.com/PSPC-SPAC-buyandsell/didauth.git#v1.0
+git+https://github.com/PSPC-SPAC-buyandsell/didauth.git@v1.0
 # ==================================================================
 
 # Debugging
