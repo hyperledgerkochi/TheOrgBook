@@ -1,0 +1,93 @@
+{
+  "app": {
+    "breadcrumb": "Home",
+    "title": "PSPC Supplier Certifications Register Demo",
+    "header": {
+      "title": "PSPC Supplier Certifications Register",
+      "logo-alt-text": "Government of Canada Logo"
+    },
+    "footer": {
+      "disclaimer": "Disclaimer",
+      "privacy": "Privacy",
+      "accessibility": "Accessibility",
+      "copyright": "Copyright",
+      "contact": "Contact Us"
+    }
+  },
+  "cert": {
+    "breadcrumb": "Certification Details",
+    "effective-date": "Issued",
+    "expiry-date": "Expires",
+    "inactive-message": "This credential is inactive:",
+    "issuer": "Issuer",
+    "issuer-website": "Issuer Website",
+    "related-certs": "Related Credentials",
+    "requesting-proof": "Requesting proof of credential ...",
+    "return-link": "Back to Certification Details",
+    "verify-button-label": "Verify Credential",
+    "whats-this-link": "What's this?",
+    "verify-status": "Verification Status:"
+  },
+  "gcweb": {
+    "about-title": "About this site",
+    "about-govt-title": "About government",
+    "date-modified": "Date modified: ",
+    "here-title": "You are here:",
+    "language-sel-title": "Language selection",
+    "page-top-link": "Top of Page",
+    "report-link": "Report a problem on this page",
+    "search-menus-title": "Search and menus",
+    "search-placeholder": "Search Canada.ca",
+    "search-title": "Search",
+    "search-website": "Search website",
+    "skip-about-link": "Skip to \"About government\"",
+    "skip-main-link": "Skip to main content",
+    "topics-title": "Topics menu"
+  },
+  "general": {
+    "none": "None",
+    "map-link": "Show on map",
+    "next-link": "Next",
+    "prev-link": "Previous",
+    "verified": "Verified"
+  },
+  "home": {
+    "title": "PSPC Supplier Certifications Register",
+    "title-orgs": "organizations",
+    "title-certs": "permits and licences"
+  },
+  "issuer": {
+    "breadcrumb": "Issuer Details",
+    "cert-types": "Permit and Licence Types",
+    "effective-date": "Effective Date",
+    "expiry-date": "Expiry Date",
+    "website": "URL"
+  },
+  "not-found": {
+    "breadcrumb": "Not Found",
+    "title": "Page not found",
+    "error": "This page could not be located. Please check the URL or follow the link below.",
+    "return-link-title": "Return to the home page"
+  },
+  "org": {
+    "breadcrumb": "Supplier Certifications",
+    "certs-title": "Supplier Certifications",
+    "dba": "Doing Business As",
+    "effective-date": "Effective Date",
+    "identifier": "Supplier PBN",
+    "location": "Location",
+    "locations": "Locations",
+    "return-link": "Back to Supplier Certifications",
+    "type": "Organization Type"
+  },
+  "search": {
+    "by-cert": "Certification",
+    "by-location": "Location",
+    "by-name": "Name",
+    "by-pbn": "PBN",
+    "no-results": "No results",
+    "placeholder": "search",
+    "results-title": "Search Results",
+    "return-link": "Back to Search"
+  }
+}

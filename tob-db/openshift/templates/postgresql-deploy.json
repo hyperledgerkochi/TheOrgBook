@@ -70,7 +70,7 @@
                         ],
                         "containers": [
                             {
-                                "name": "postgresql",
+                                "name": "${NAME}",
                                 "image": " ",
                                 "ports": [
                                     {
@@ -98,12 +98,26 @@
                                         }
                                     },
                                     {
+                                        "name": "POSTGRESQL_ADMIN_PASSWORD",
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "${NAME}",
+                                                "key": "admin-password"
+                                            }
+                                        }
+                                    },
+                                    {
                                         "name": "POSTGRESQL_DATABASE",
                                         "value": "${POSTGRESQL_DATABASE_NAME}"
                                     }
                                 ],
                                 "resources": {
+                                    "requests": {
+                                        "cpu": "${CPU_REQUEST}",
+                                        "memory": "${MEMORY_REQUEST}"
+                                    },
                                     "limits": {
+                                        "cpu": "${CPU_LIMIT}",
                                         "memory": "${MEMORY_LIMIT}"
                                     }
                                 },
@@ -167,6 +181,7 @@
                 }
             },
             "spec": {
+                "storageClassName": "${PERSISTENT_VOLUME_CLASS}",
                 "accessModes": [
                     "ReadWriteOnce"
                 ],
@@ -183,15 +198,11 @@
             "metadata": {
                 "name": "${NAME}",
                 "labels": {
-                    "app": "${NAME}-persistent",
-                    "template": "${NAME}-persistent-template"
-                },
-                "annotations": {
-                    "template.openshift.io/expose-password": "{.data['database-password']}",
-                    "template.openshift.io/expose-username": "{.data['database-user']}"
+                    "app": "${NAME}-persistent"
                 }
             },
             "data": {
+                "admin-password": "${POSTGRESQL_ADMIN_PASSWORD}",
                 "database-password": "${POSTGRESQL_PASSWORD}",
                 "database-user": "${POSTGRESQL_USER}"
             },
@@ -231,7 +242,7 @@
         {
             "name": "NAME",
             "displayName": "Name",
-            "description": "The name assigned to all of the OpenShift resources associated to the PostgreSQL instance.",
+            "description": "The name assigned to all of the OpenShift resources associated to the server instance.",
             "required": true,
             "value": "postgresql"
         },
@@ -281,6 +292,14 @@
             "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
         },
         {
+            "name": "POSTGRESQL_ADMIN_PASSWORD",
+            "displayName": "PostgreSQL Admin Password",
+            "description": "Password for the 'postgres' PostgreSQL administrative account.  Needs to be basee64 encoded.",
+            "required": true,
+            "generate": "expression",
+            "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
+        },
+        {
             "name": "MOUNT_PATH",
             "displayName": "Mount Path",
             "description": "The path to mount the persistent volume.",
@@ -295,11 +314,39 @@
             "value": "1Gi"
         },
         {
-            "name": "MEMORY_LIMIT",
-            "displayName": "Memory Limit",
-            "description": "Maximum amount of memory the container can use.",
+            "name": "PERSISTENT_VOLUME_CLASS",
+            "displayName": "Persistent Volume Class name",
+            "description": "The class of the volume; gluster-file, gluster-block, gluster-file-db",
+            "required": false,
+            "value": "gluster-file-db"
+        },
+        {
+            "name": "CPU_REQUEST",
+            "displayName": "Resources CPU Request",
+            "description": "The resources CPU request (in cores) for this build.",
             "required": true,
-            "value": "512Mi"
+            "value": "100m"
+        },
+        {
+            "name": "CPU_LIMIT",
+            "displayName": "Resources CPU Limit",
+            "description": "The resources CPU limit (in cores) for this build.",
+            "required": true,
+            "value": "750m"
+        },
+        {
+            "name": "MEMORY_REQUEST",
+            "displayName": "Resources Memory Request",
+            "description": "The resources Memory request (in Mi, Gi, etc) for this build.",
+            "required": true,
+            "value": "100Mi"
+        },
+        {
+            "name": "MEMORY_LIMIT",
+            "displayName": "Resources Memory Limit",
+            "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
+            "required": true,
+            "value": "4Gi"
         }
     ]
 }

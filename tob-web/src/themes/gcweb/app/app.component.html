@@ -7,11 +7,11 @@
 </li>
 </ul><header role="banner">
 <div id="wb-bnr" class="container">
-<section id="wb-lng" class="visible-md visible-lg text-right">
+<section id="wb-lng" class="d-none d-md-block text-right">
 <h2 class="wb-inv" translate>gcweb.language-sel-title</h2>
 <div class="row">
 <div class="col-md-12">
-<ul class="list-inline margin-bottom-none">
+<ul class="list-inline mb-0">
 <li><a [lang]="altLang" href="#" (click)="switchLanguage($event)">{{altLangLabel}}</a></li>
 </ul>
 </div>
@@ -21,16 +21,16 @@
 <div class="brand col-xs-8 col-sm-9 col-md-6">
 <a [href]="'https://www.canada.ca/'+currentLang+'.html'"><img tabindex="-1" [src]="'./gcweb/assets/sig-blk-'+currentLang+'.svg'"><span class="wb-inv"> <span lang="en">Government of Canada</span> / <span lang="fr">Gouvernement du Canada</span></span></a>
 </div>
-<section class="wb-mb-links col-xs-4 col-sm-3 visible-sm visible-xs" id="wb-glb-mn">
+<section class="wb-mb-links col-xs-4 col-sm-3 d-none" id="wb-glb-mn">
 <h2 translate>gcweb.search-menus-title</h2>
 <ul class="list-inline text-right chvrn">
-<li><a href="#mb-pnl" [title]="'gcweb.search-menus-title' | translate" aria-controls="mb-pnl" class="overlay-lnk" role="button"><span class="glyphicon glyphicon-search"><span class="glyphicon glyphicon-th-list"><span class="wb-inv" translate>gcweb.search-menus-title</span></span></span></a></li>
+<li><a href="#mb-pnl" [title]="'gcweb.search-menus-title' | translate" aria-controls="mb-pnl" class="overlay-lnk" role="button"><span class="fa fa-search"><span class="glyphicon glyphicon-th-list"><span class="wb-inv" translate>gcweb.search-menus-title</span></span></span></a></li>
 </ul>
 <div id="mb-pnl"></div>
 </section>
-<section id="wb-srch" class="col-xs-6 text-right visible-md visible-lg">
+<section id="wb-srch" class="col text-right d-none d-md-block">
 <h2 translate>gcweb.search-title</h2>
-<form action="#" method="post" name="cse-search-box" role="search" class="form-inline">
+<form action="#" method="post" name="cse-search-box" role="search" class="form-inline justify-content-end">
 <div class="form-group">
 <label for="wb-srch-q" class="wb-inv" translate>gcweb.search-website</label>
 <input id="wb-srch-q" list="wb-srch-q-ac" class="wb-srch-q form-control" name="q" type="search" value="" size="27" maxlength="150" [placeholder]="'gcweb.search-placeholder' | translate">
@@ -39,13 +39,13 @@
 </datalist>
 </div>
 <div class="form-group submit">
-<button type="submit" id="wb-srch-sub" class="btn btn-primary btn-small" name="wb-srch-sub"><span class="glyphicon-search glyphicon"></span><span class="wb-inv" translate>gcweb.search-title</span></button>
+<button type="submit" id="wb-srch-sub" class="btn btn-primary btn-small" name="wb-srch-sub"><span class="fa fa-search"></span><span class="wb-inv" translate>gcweb.search-title</span></button>
 </div>
 </form>
 </section>
 </div>
 </div>
-<nav role="navigation" id="wb-sm" data-ajax-replace="/gcweb/ajax/sitemenu-en.html" data-trgt="mb-pnl" class="wb-menu visible-md visible-lg" typeof="SiteNavigationElement">
+<nav role="navigation" id="wb-sm" data-ajax-replace="/gcweb/ajax/sitemenu-en.html" data-trgt="mb-pnl" class="wb-menu d-none d-md-block" typeof="SiteNavigationElement">
 <div class="container nvbar">
 <h2 translate>gcweb.topics-title</h2>
 <div class="row">
@@ -85,15 +85,19 @@
   </ng-container>
 
   <div class="pagedetails">
-  <dl id="wb-dtmd">
-  <dt>{{'gcweb.date-modified' | translate}}</dt>
-  <dd><time property="dateModified">2018-01-29</time></dd>
-  </dl>
-  <div class="row">
-  <div class="col-sm-6 col-md-5 col-lg-4">
-  <a href="https://www.canada.ca/en/report-problem.html" class="btn btn-default btn-block" translate>gcweb.report-link</a>
-  </div>
-  </div>
+    <div class="row">
+      <div class="col-md-6 col-lg-5">
+        <a href="https://www.canada.ca/en/report-problem.html" class="btn btn-default btn-block">
+          <span class="fa fa-caret-right"></span> {{ 'gcweb.report-link' | translate}}
+        </a>
+      </div>
+    </div>
+    <div class="row mrgn-tp-sm">
+      <dl id="wb-dtmd" class="col-sm-12">
+        <dt>{{'gcweb.date-modified' | translate}}</dt>
+        <dd><time property="dateModified">2018-11-11</time></dd>
+      </dl>
+    </div>
   </div>
 </main>
 
@@ -124,8 +128,8 @@
 <li><a href="https://www.canada.ca/en/transparency/privacy.html">Privacy</a></li>
 </ul>
 </nav>
-<div class="col-xs-6 visible-sm visible-xs tofpg">
-<a href="#wb-cont">{{'gcweb.page-top-link' | translate}} <span class="glyphicon glyphicon-chevron-up"></span></a>
+<div class="col-xs-6 d-md-none tofpg">
+<a href="#wb-cont">{{'gcweb.page-top-link' | translate}} <span class="fa fa-caret-up"></span></a>
 </div>
 <div class="col-xs-6 col-md-3 col-lg-2 text-right">
 <object type="image/svg+xml" tabindex="-1" role="img" data="./gcweb/assets/wmms-blk.svg" aria-label="Symbol of the Government of Canada"></object>

@@ -1,3 +1,0 @@
-{{ object.dbaName }}
-Created: {{ object.CREATE_TIMESTAMP }}
-Last modified: {{ object.UPDATE_TIMESTAMP }}

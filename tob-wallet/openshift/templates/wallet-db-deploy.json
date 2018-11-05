@@ -105,14 +105,19 @@
                                                 "key": "admin-password"
                                             }
                                         }
-                                    },                                    
+                                    },
                                     {
                                         "name": "POSTGRESQL_DATABASE",
                                         "value": "${POSTGRESQL_DATABASE_NAME}"
                                     }
                                 ],
                                 "resources": {
+                                    "requests": {
+                                        "cpu": "${CPU_REQUEST}",
+                                        "memory": "${MEMORY_REQUEST}"
+                                    },
                                     "limits": {
+                                        "cpu": "${CPU_LIMIT}",
                                         "memory": "${MEMORY_LIMIT}"
                                     }
                                 },
@@ -176,6 +181,7 @@
                 }
             },
             "spec": {
+                "storageClassName": "${PERSISTENT_VOLUME_CLASS}",
                 "accessModes": [
                     "ReadWriteOnce"
                 ],
@@ -192,7 +198,7 @@
             "metadata": {
                 "name": "${NAME}",
                 "labels": {
-                    "app": "${NAME}"
+                    "app": "${NAME}-persistent"
                 }
             },
             "data": {
@@ -236,7 +242,7 @@
         {
             "name": "NAME",
             "displayName": "Name",
-            "description": "The name assigned to all of the OpenShift resources associated to the PostgreSQL instance.",
+            "description": "The name assigned to all of the OpenShift resources associated to the server instance.",
             "required": true,
             "value": "wallet-db"
         },
@@ -267,8 +273,7 @@
             "description": "The name of the PostgreSQL database.",
             "required": true,
             "generate": "expression",
-            "from": "[a-zA-Z_][a-zA-Z0-9_]{10}",
-            "value": "TheOrgBook_Database"
+            "from": "[a-zA-Z_][a-zA-Z0-9_]{10}"
         },
         {
             "name": "POSTGRESQL_USER",
@@ -309,9 +314,37 @@
             "value": "1Gi"
         },
         {
+            "name": "PERSISTENT_VOLUME_CLASS",
+            "displayName": "Persistent Volume Class name",
+            "description": "The class of the volume; gluster-file, gluster-block, gluster-file-db",
+            "required": false,
+            "value": "gluster-file-db"
+        },
+        {
+            "name": "CPU_REQUEST",
+            "displayName": "Resources CPU Request",
+            "description": "The resources CPU request (in cores) for this build.",
+            "required": true,
+            "value": "100m"
+        },
+        {
+            "name": "CPU_LIMIT",
+            "displayName": "Resources CPU Limit",
+            "description": "The resources CPU limit (in cores) for this build.",
+            "required": true,
+            "value": "250m"
+        },
+        {
+            "name": "MEMORY_REQUEST",
+            "displayName": "Resources Memory Request",
+            "description": "The resources Memory request (in Mi, Gi, etc) for this build.",
+            "required": true,
+            "value": "100Mi"
+        },
+        {
             "name": "MEMORY_LIMIT",
-            "displayName": "Memory Limit",
-            "description": "Maximum amount of memory the container can use.",
+            "displayName": "Resources Memory Limit",
+            "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
             "required": true,
             "value": "512Mi"
         }
