@@ -24,7 +24,8 @@ http {
     # Use a w3c standard log format
     log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
                       '$status $body_bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for"';
+                      '"$http_user_agent" "$http_x_forwarded_for" '
+                      'rt=$request_time urt=$upstream_response_time $pipe';
 
     access_log  /var/log/nginx/access.log  main if=$loggable;
 
@@ -53,6 +54,12 @@ http {
 
     # HTTP Basic rules
     auth_basic_user_file /tmp/.htpasswd;
+
+    # Set variable for API proxy
+    map $http_x_forwarded_proto $proxy_scheme {
+        default $scheme;
+        https https;
+    }
 
     server {
         listen       8080;

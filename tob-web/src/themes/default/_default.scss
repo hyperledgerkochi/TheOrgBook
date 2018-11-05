@@ -1,44 +1,5 @@
-
-.color-red {
-	filter: sepia() hue-rotate(300deg) saturate(180%)
-}
-.color-blue {
-	filter: sepia() hue-rotate(155deg) saturate(160%);
-}
-.color-green {
-	filter: sepia() hue-rotate(50deg) saturate(160%);
-}
-.color-purple {
-	filter: sepia() hue-rotate(200deg) saturate(160%);
-}
-.color-orange {
-	filter: sepia() hue-rotate(330deg) saturate(160%);
-}
-
-.mrgn-tp-0 {
-  margin-top: 0;
-}
-.mrgn-tp-sm {
-  margin-top: 8px;
-}
-.mrgn-tp-md {
-  margin-top: 1.5rem;
-}
-.mrgn-tp-lg {
-  margin-top: 3rem;
-}
-
-.mrgn-bttm-0 {
-  margin-bottom: 0;
-}
-.mrgn-bttm-sm {
-  margin-bottom: 8px;
-}
-.mrgn-bttm-md {
-  margin-bottom: 1.5rem;
-}
-.mrgn-bttm-lg {
-  margin-bottom: 3rem;
+.page-min-height {
+  // min-height: 36em;
 }
 
 @keyframes spin {
@@ -63,7 +24,9 @@ $indicator-thickness: 0.2em;
 	border: $indicator-thickness solid transparent;
 	border-top-color: $indicator-color;
 	line-height: 1;
-	margin: 0 auto;
+	&:not(.inline) {
+    margin: 0 auto;
+  }
 	position: relative;
 	text-indent: -9999em;
 	transform: translateZ(0);
@@ -82,6 +45,10 @@ $indicator-thickness: 0.2em;
 
 .text-number {
 	font-variant-numeric: lining-nums tabular-nums;
+}
+
+.text-identifier {
+	font-family: monospace;
 }
 
 @keyframes loading {
@@ -110,3 +77,41 @@ $indicator-thickness: 0.2em;
   }
 }
 
+// Standard margins for icons
+.fa.left {
+  margin-right: 0.25em;
+}
+.fa.right {
+  margin-left: 0.25em;
+}
+// Fix button height when only icon is visible
+.btn .fa {
+  line-height: inherit;
+}
+
+.form-body {
+  > .form-group:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Restore panel-info etc equivalents
+@each $color, $value in (success, info, warning, danger) {
+  .card-#{$color} {
+    border-color: theme-color-level($color, $alert-border-level);
+    > .card-header {
+      @include gradient-bg(theme-color-level($color, $alert-bg-level));
+      border-color: theme-color-level($color, $alert-border-level);
+      color: theme-color-level($color, $alert-color-level);
+    }
+    > .card-footer {
+      border-color: theme-color-level($color, $alert-border-level);
+    }
+  }
+}
+.card-warning {
+    border-color: theme-color-level(warning, -6);
+    > .card-header, > .card-footer {
+        border-color: theme-color-level(warning, -6);
+    }
+}

@@ -1,0 +1,49 @@
+<section id="search" class="page-min-height" *ngIf="(result$ | async) as result">
+  <div class="row">
+    <div class="col-sm-9 offset-sm-3">
+      <h1 class="search-title" translate>search.title</h1>
+
+      <div class="search-head">
+        <div class="search-wrap">
+          <search-input #searchInput (accepted)="updateQuery($event)" [loading]="result.loading"></search-input>
+        </div>
+        <!-- div class="search-types">
+          <a routerLink="../name" queryParamsHandling="preserve" class="search-type" [ngClass]="{active: filterType==='name'}">Names</a>
+          <a routerLink="../location" queryParamsHandling="preserve" class="search-type" [ngClass]="{active: filterType==='location'}">Locations</a>
+          <a routerLink="../issuer" queryParamsHandling="preserve" class="search-type" [ngClass]="{active: filterType==='issuer'}">Issuers</a>
+          <a routerLink="../map" queryParamsHandling="preserve" class="search-type" [ngClass]="{active: filterType==='map'}">Map</a>
+        </div -->
+      </div>
+
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+
+      <div class="row results" *ngIf="inited">
+        <div class="col-sm-3 facets">
+          <search-filters #searchFilters [filters]="filters"></search-filters>
+        </div>
+
+        <div class="col-sm-9 rows">
+          <error-message [error]="result.error" [title]="'search.results-error' | translate"></error-message>
+          <div class="alert alert-info" *ngIf="blankQuery && !result.data" translate>
+            search.prompt
+          </div>
+          <ng-container *ngIf="result.data as creds">
+            <label class="control-label" translate>search.results-title</label>
+            <ng-container *ngIf="creds.length">
+              <search-nav (nav)="handleNav($event)" [info]="result.info" [loading]="result.loading" show-status="true"></search-nav>
+              <cred-list [records]="creds" format="search"></cred-list>
+              <search-nav (nav)="handleNav($event)" [info]="result.info" [loading]="result.loading"></search-nav>
+            </ng-container>
+            <div class="alert alert-info" *ngIf="!creds.length" translate>
+              search.no-results
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>

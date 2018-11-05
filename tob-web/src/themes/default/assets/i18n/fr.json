@@ -17,41 +17,11 @@
       "contact": "Contactez-nous"
     }
   },
-  "cert": {
-    "breadcrumb": "Permit and License Info",
-    "effective-date": "Effective Date",
-    "expiry-date": "Expiry Date",
-    "inactive-message": "This credential is inactive:",
-    "issuer": "Issuer",
-    "issuer-website": "Issuer Website",
-    "related-certs": "Related Credentials",
-    "requesting-proof": "Requesting proof of credential ...",
-    "return-link": "Back to Permit and License Info",
-    "verify-button-label": "Verify Credential",
-    "whats-this-link": "What's this?",
-    "verify-status": "Verification Status:"
-  },
-  "dashboard": {
+  "home": {
     "breadcrumb": "Recherche",
     "title": "Bienvenue aux Organisations vérifiables de la Colombie-Britannique",
     "title-orgs": "organisations",
     "title-certs": "permis et licences"
-  },
-  "gcweb": {
-    "about-title": "À propos de ce site",
-    "about-govt-title": "À propos du gouvernement",
-    "date-modified": "Date de modification : ",
-    "here-title": "You are here:",
-    "language-sel-title": "Sélection de la langue",
-    "page-top-link": "Haut de la page",
-    "report-link": "Signaler un problème ou une erreur sur cette page",
-    "search-menus-title": "Recherche et menus",
-    "search-placeholder": "Rechercher dans Canada.ca",
-    "search-title": "Recherche",
-    "search-website": "Recherchez le site Web",
-    "skip-about-link": "Passer à « À propos de ce site »",
-    "skip-main-link": "Passer au contenu principal",
-    "topics-title": "Menu des sujets"
   },
   "general": {
     "none": "None",
@@ -61,10 +31,12 @@
     "verified": "Verified"
   },
   "issuer": {
+    "did": "did",
+    "email": "email",
     "breadcrumb": "Issuer Service",
-    "cert-types": "Permit and License Types",
-    "effective-date": "Effective Date",
-    "expiry-date": "Expiry Date",
+    "cred-types": "Credential Types",
+    "end-date": "Expiry Date",
+    "start-date": "Effective Date",
     "website": "Issuer Website"
   },
   "not-found": {
@@ -72,17 +44,6 @@
     "title": "Page non trouvée",
     "error": "Cette page a été déplacée.",
     "return-link-title": "Retournez sur la page d'accueil"
-  },
-  "org": {
-    "breadcrumb": "Organization Info",
-    "certs-title": "Permis et Licences",
-    "dba": "Doing Business As",
-    "effective-date": "Effective Date",
-    "identifier": "Organization Identifier",
-    "location": "Location",
-    "locations": "Locations",
-    "return-link": "Back to Organization Info",
-    "type": "Organization Type"
   },
   "recipe": {
     "breadcrumb": "Recipe",
@@ -95,13 +56,10 @@
     "title": "Recipe"
   },
   "search": {
-    "by-cert": "Par certification",
-    "by-location": "Par lieu",
-    "by-name": "Par nom",
-    "by-pbn": "Par PBN",
+    "by-name": "Recherche par nom",
+    "by-location": "Recherche par lieu",
     "no-results": "Aucun résultat",
     "placeholder": "recherche",
-    "results-title": "Résultats de la recherche",
-    "return-link": "Back to Search"
+    "results-title": "Résultats de la recherche"
   }
 }

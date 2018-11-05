@@ -20,56 +20,31 @@ services:
     depends_on:
       - tob-api
     restart: always
-    # command: npm start
 
-  # 
-  # tob-wallet
-  #-------------------------------------------------
-  # The Wallet provides the backend storage for the 
-  # TheOrgBook Indy SDK wallet.
   #
-  # We are using a simple sleep command to do this 
-  # for the moment; refer to the `command` section 
-  # of the configuration for details.  It would be 
-  # nice to implement a more deterministic solution.
+  # tob-web-dev
+  # Run tob-web in development mode with auto-reload and inspector support
   #
-  tob-wallet:
-    image: tob-wallet
+  tob-web-dev:
+    image: angular-dev
     environment:
-      - DATABASE_SERVICE_NAME=${WALLET_DB_SERVICE_NAME}
-      #- DATABASE_SERVICE_NAME=${DATABASE_SERVICE_NAME}
-      - DATABASE_ENGINE=${DATABASE_ENGINE}
-      - DATABASE_NAME=${DATABASE_NAME}
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - TOB_WALLET_DB_SERVICE_HOST=${WALLET_DB_SERVICE_NAME}
-      - TOB_WALLET_DB_SERVICE_PORT=5432
-      #- TOB_DB_SERVICE_HOST=${DATABASE_SERVICE_NAME}
-      #- TOB_DB_SERVICE_PORT=5432
-      - WALLET_USER_ID=${WALLET_USER_ID}
-      - WALLET_USER_PASSWORD=${WALLET_USER_PASSWORD}
-      - WALLET_ADMIN_USER_ID=${WALLET_ADMIN_USER_ID}
-      - WALLET_ADMIN_PASSWORD=${WALLET_ADMIN_PASSWORD}
-      - STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH}
-      - WEB_CONCURRENCY=${WEB_CONCURRENCY}
-      - RUST_LOG=${RUST_LOG}
-      - RUST_BACKTRACE=${RUST_BACKTRACE}
-    volumes:
-      - ../tob-wallet/api:/opt/app-root/src/api
+      - API_URL=${API_URL}
+      - DEV_MODE=false
+      - NODE_ENV=development
+      - NPM_CONFIG_LOGLEVEL=notice
+      - NPM_RUN=dev
+      - TOB_THEME=${TOB_THEME}
+      - WEB_BASE_HREF=${WEB_BASE_HREF}
+      - WEB_DEPLOY_URL=${WEB_DEPLOY_URL}
     networks:
-      - wallet-tob
-      - wallet-db
+      - tob
     ports:
-      - "${WALLET_HTTP_PORT}:8080"
+      - "${WEB_HTTP_PORT}:8080"
+      - 5858:5858
+    volumes:
+      - "../tob-web/src:/opt/app-root/src/src"
     depends_on:
-      - tob-db
-      - tob-wallet-db
-    command: >
-      /bin/bash -c "
-        echo sleeping ...;
-        sleep 12;
-        ${STI_SCRIPTS_PATH}/run;"
-    restart: always
+      - tob-api
 
   # 
   # tob-api
@@ -89,48 +64,62 @@ services:
   tob-api:
     image: django
     environment:
+      - APP_CONFIG=${APP_CONFIG}
+      - APP_MODULE=${APP_MODULE}
       - DATABASE_SERVICE_NAME=${DATABASE_SERVICE_NAME}
       - DATABASE_ENGINE=${DATABASE_ENGINE}
       - DATABASE_NAME=${DATABASE_NAME}
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - WALLET_TYPE=${WALLET_TYPE}
+      - POSTGRESQL_WALLET_HOST=${POSTGRESQL_WALLET_HOST}
+      - POSTGRESQL_WALLET_PORT=${POSTGRESQL_WALLET_PORT}
+      - POSTGRESQL_WALLET_USER=${POSTGRESQL_USER}
+      - POSTGRESQL_WALLET_PASSWORD=${POSTGRESQL_PASSWORD}
+      - POSTGRESQL_WALLET_ADMIN_PASSWORD=${POSTGRESQL_ADMIN_PASSWORD}
+      - WALLET_ENCRYPTION_KEY=${WALLET_ENCRYPTION_KEY}
+      - INDY_WALLET_SEED=${INDY_WALLET_SEED}
+      - INDY_WALLET_DID=${INDY_WALLET_DID}
       - DEBUG=${DEBUG}
+      - SQL_DEBUG=${SQL_DEBUG}
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL}
+      - OPTIMIZE_TABLE_ROW_COUNTS=${OPTIMIZE_TABLE_ROW_COUNTS}
       - SOLR_SERVICE_NAME=${SOLR_SERVICE_NAME}
       - SOLR_CORE_NAME=${SOLR_CORE_NAME}
+      - SKIP_INDEXING_ON_STARTUP=${SKIP_INDEXING_ON_STARTUP}
       - TOB_DB_SERVICE_HOST=${DATABASE_SERVICE_NAME}
       - TOB_DB_SERVICE_PORT=5432
       - TOB_SOLR_SERVICE_HOST=${SOLR_SERVICE_NAME}
       - TOB_SOLR_SERVICE_PORT=8983
-      - INDY_WALLET_SEED=${INDY_WALLET_SEED}
+      - INDY_DISABLED=${INDY_DISABLED}
       - LEDGER_URL=${LEDGER_URL}
-      - INDY_WALLET_TYPE=${INDY_WALLET_TYPE}
-      - INDY_WALLET_URL=${INDY_WALLET_URL}
-      - WALLET_USER_ID=${WALLET_USER_ID}
-      - WALLET_PASSWORD=${WALLET_USER_PASSWORD}
+      - GENESIS_URL=${GENESIS_URL}
+      - LEDGER_PROTOCOL_VERSION=${LEDGER_PROTOCOL_VERSION}
+      - AUTO_REGISTER_DID=${AUTO_REGISTER_DID:-1}
       - STI_SCRIPTS_PATH=${STI_SCRIPTS_PATH}
-      - WEB_CONCURRENCY=${WEB_CONCURRENCY}
+      - WEB_CONCURRENCY=${WEB_CONCURRENCY:-1}
       - RUST_LOG=${RUST_LOG}
       - RUST_BACKTRACE=${RUST_BACKTRACE}
-    volumes:
-      - ../tob-api/api:/home/indy/api
+      - TOB_THEME=${TOB_THEME}
+      - ENABLE_REALTIME_INDEXING=${ENABLE_REALTIME_INDEXING}
+      - APPLICATION_URL=${APPLICATION_URL}
     networks:
-      - wallet-tob
       - tob
     ports:
       - "${API_HTTP_PORT}:8080"
       - 3000:3000
     depends_on:
       - tob-db
-      - tob-wallet
+      - wallet-db
       - tob-solr
     command: >
-      /bin/bash -c "
-        echo sleeping ...;
-        sleep 20;
+        /bin/bash -c "
+        echo waiting for solr ...;
+        sleep 10;
         if [ $DEBUG ] && [ "$DEBUG" == "true" ]; then
-          python manage.py runserver --noreload --nothreading 0.0.0.0:8080;
+          python manage.py migrate && python manage.py runserver --nothreading 0.0.0.0:8080;
         else
           ${STI_SCRIPTS_PATH}/run;
         fi"
@@ -183,7 +172,7 @@ services:
   # tob-db
   # 
   tob-db:
-    image: registry.access.redhat.com/rhscl/postgresql-95-rhel7:9.5
+    image: postgresql
     environment:
       - POSTGRESQL_USER=${POSTGRESQL_USER}
       - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
@@ -197,18 +186,19 @@ services:
     restart: always
 
   # 
-  # tob-wallet-db
+  # wallet-db
   # 
-  tob-wallet-db:
-    image: registry.access.redhat.com/rhscl/postgresql-95-rhel7:9.5
+  wallet-db:
+    image: postgresql
     environment:
       - POSTGRESQL_USER=${POSTGRESQL_USER}
       - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
       - POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE}
+      - POSTGRESQL_ADMIN_PASSWORD=${POSTGRESQL_ADMIN_PASSWORD}
     networks:
-      - wallet-db
+      - tob
     ports:
-      - "8032:5432"
+      - 5433:5432
     volumes:
       - tob-wallet-data:/var/lib/pgsql/data     
     restart: always
@@ -221,8 +211,6 @@ networks:
       driver: default
       config:
       - subnet: 172.16.238.0/24
-  wallet-db:
-  wallet-tob:
 
 volumes:
   tob-data:

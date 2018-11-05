@@ -1,217 +1,866 @@
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs';
+import { Subscription } from 'rxjs/Subscription';
 
-export interface DoingBusinessAs {
-  id: number;
-  verifiableOrgId: number;
-  dbaName: string;
-  effectiveDate: string;
-  endDate: string;
-  // custom properties
-  locations?: Location[];
+function load_data<T>(
+    obj: T,
+    result: any,
+    attr_map?: {[key: string]: any},
+    list_map?: {[key: string]: any}): T {
+  if(obj && result) {
+    for(let k in result) {
+      if(attr_map && k in attr_map) {
+        obj[k] = (result[k] === null || result[k] === undefined)
+          ? null : (new Model[attr_map[k]])._load(result[k]);
+      }
+      else if(list_map && k in list_map) {
+        obj[k] = (result[k] === null || result[k] === undefined)
+          ? [] : result[k].map((v) => (new Model[list_map[k]])._load(v));
+      }
+      else {
+        obj[k] = result[k];
+      }
+    }
+  }
+  return obj;
 }
 
-export interface InactiveClaimReason {
-  id: number;
-  shortReason: string;
-  reason: string;
-  effectiveDate: string;
-  endDate: string;
-  displayOrder: number;
-}
 
-export function blankInactiveClaimReason(): InactiveClaimReason {
-  return {
-    id: 0,
-    shortReason: '',
-    reason: '',
-    effectiveDate: null,
-    endDate: null,
-    displayOrder: null
-  };
-}
+export namespace Model {
 
-export interface IssuerService {
-  id: number;
-  name: string;
-  issuerOrgTLA: string;
-  issuerOrgURL: string;
-  DID: string;
-  jurisdictionId: number;
-  effectiveDate: string;
-  endDate: string;
-}
+  export interface ModelCtor<M extends BaseModel> {
+    new (value?: any): M;
+    propertyMap: {[key: string]: string};
+    listPropertyMap: {[key: string]: string};
+    resourceName: string;
+    childResource: string;
+    extPath: string;
+  }
 
-export function blankIssuerService(): IssuerService {
-  return {
-    id: 0,
-    name: '',
-    issuerOrgTLA: null,
-    issuerOrgURL: null,
-    DID: null,
-    jurisdictionId: null,
-    effectiveDate: null,
-    endDate: null,
+  export abstract class BaseModel {
+    static propertyMap: {[key: string]: string} = {};
+    static listPropertyMap: {[key: string]: string} = {};
+    static resourceName: string;
+    static childResource: string;
+    static extPath: string;
+
+    constructor(data?: any) {
+      if(data) {
+        this._load(data);
+      }
+    }
+
+    _load<T extends BaseModel>(result: any) {
+      let ctor = (this.constructor as ModelCtor<T>);
+      return load_data(this, result, ctor.propertyMap, ctor.listPropertyMap);
+    }
+
+    get pageTitle(): string {
+      return null;
+    }
+  }
+
+  function mapByType<T extends {type: string}>(input: T[]): {[key: string]: T} {
+    let result = {};
+    if(input) {
+      for(let obj of input) {
+        result[obj.type] = obj;
+      }
+    }
+    return result;
+  }
+
+  export class Address extends BaseModel {
+    id: number;
+    addressee: string;
+    civic_address: string;
+    city: string;
+    province: string;
+    postal_code: string;
+    country: string;
+    address_type: string;
+    credential_id: number;
+    inactive: boolean;
+
+    static resourceName = 'address';
+  }
+
+  export class Attribute extends BaseModel {
+    id: number;
+    type: string;
+    format: string;
+    value: string;
+    credential_id: number;
+    inactive: boolean;
+
+    get typeClass(): string {
+      if(this.format === 'email' || this.format === 'phone' || this.format === 'name')
+        return this.format;
+      if(this.format === 'url')
+        return 'website';
+    }
+
+    get typeLabel(): string {
+      if(this.type && ! ~this.type.indexOf('.'))
+        return `attribute.${this.type}`;
+      return this.type;
+    }
+  }
+
+  export class Credential extends BaseModel {
+    id: number;
+    credential_type: CredentialType;
+    effective_date: string;
+    inactive: boolean;
+    revoked: boolean;
+
+    addresses: Address[];
+    _attributes: Attribute[];
+    _attribute_map: {[key: string]: Attribute};
+    names: Name[];
+    topic: Topic;
+
+    get pageTitle(): string {
+      return this.credential_type && this.credential_type.description;
+    }
+
+    static resourceName = 'credential';
+
+    static propertyMap = {
+      credential_type: 'CredentialType',
+      topic: 'Topic',
+    };
+    static listPropertyMap = {
+      addresses: 'Address',
+      attributes: 'Attribute',
+      names: 'Name',
+    };
+
+    get attributes(): Attribute[] {
+      return this._attributes;
+    }
+    set attributes(attrs: Attribute[]) {
+      this._attributes = attrs;
+      this._attribute_map = mapByType(this._attributes);
+    }
+
+    get attribute_map(): {[key: string]: Attribute} {
+      return this._attribute_map || {};
+    }
+
+    get issuer(): Issuer {
+      return this.credential_type && this.credential_type.issuer;
+    }
+    set issuer(val: Issuer) {
+    }
+    get haveAddresses() {
+      return this.topic.addresses && this.topic.addresses.length;
+    }
+    get haveAttributes() {
+      return this.attributes && this.attributes.length;
+    }
+    get haveNames() {
+      return this.names && this.names.length;
+    }
+  }
+
+  export class CredentialFormatted extends Credential {
+    static extPath = 'formatted';
+  }
+
+  export class CredentialSearchResult extends Credential {
+    static resourceName = 'search/credential/topic';
+  }
+
+  export class CredentialVerifyResult extends BaseModel {
+    success: boolean;
+    result: any;
+
+    static resourceName = 'credential';
+    static extPath = 'verify';
+
+    get claims() {
+      let ret = [];
+      if(typeof this.result === 'object' && this.result.proof) {
+        let attrs = this.result.proof.requested_proof.revealed_attrs;
+        for(let k in attrs) {
+          ret.push({name: k, value: attrs[k].raw});
+        }
+      }
+      ret.sort((a,b) => a.name.localeCompare(b.name));
+      return ret;
+    }
+
+    get status(): string {
+      return this.success ? 'cred.verified' : 'cred.not-verified';
+    }
+
+    get text(): string {
+      if(typeof this.result === 'string')
+        return this.result;
+      return JSON.stringify(this.result, null, 2);
+    }
+  }
+
+  export class CredentialType extends BaseModel {
+    id: number;
+    // schema: Schema;
+    issuer: Issuer;
+    description: string;
+    // processorConfig: string;
+    credential_def_id: string;
+    // visible_fields: string;
+    has_logo: boolean;
+
+    static resourceName = 'credentialtype';
+
+    static propertyMap = {
+      issuer: 'Issuer',
+    };
+
+    get logo_url(): string {
+      if(this.has_logo) {
+        return `${CredentialType.resourceName}/${this.id}/logo`;
+      }
+    }
+  }
+
+  export class Issuer extends BaseModel {
+    id: number;
+    did: string;
+    name: string;
+    abbreviation: string;
+    email: string;
+    url: string;
+    has_logo: boolean;
+
+    static resourceName = 'issuer';
+
+    get pageTitle(): string {
+      return this.name;
+    }
+
+    get logo_url(): string {
+      if(this.has_logo) {
+        return `${Issuer.resourceName}/${this.id}/logo`;
+      }
+    }
+  }
+
+  export class IssuerCredentialType extends CredentialType {
+    static resourceName = 'issuer';
+    static childResource = 'credentialtype';
+  }
+
+  export class Name extends BaseModel {
+    id: number;
+    text: string;
+    type: string;
+    credential_id: number;
+    inactive: boolean;
+
+    static resourceName = 'name';
+
+    // extra API fields
+    issuer: Issuer;
+    static propertyMap = {
+      issuer: 'Issuer',
+    };
+  }
+
+  export class Topic extends BaseModel {
+    id: number;
+    source_id: string;
+    type: string;
+
+    addresses: Address[];
+    _attributes: Attribute[];
+    _attribute_map: {[key: string]: Attribute};
+    names: Name[];
+
+    static resourceName = 'topic';
+
+    static listPropertyMap = {
+      addresses: 'Address',
+      attributes: 'Attribute',
+      names: 'Name',
+    };
+
+    get attributes(): Attribute[] {
+      return this._attributes;
+    }
+    set attributes(attrs: Attribute[]) {
+      this._attributes = attrs;
+      this._attribute_map = mapByType(this._attributes);
+    }
+
+    get attribute_map(): {[key: string]: Attribute} {
+      return this._attribute_map || {};
+    }
+
+    get pageTitle(): string {
+      if(this.names && this.names.length) {
+        return this.names[0].text;
+      }
+    }
+
+    get preferredName(): Name {
+      let found = null;
+      if(this.names) {
+        for(let name of this.names) {
+          if(name.type === 'entity_name')
+            found = name;
+        }
+        if(! found)
+          found = this.names[0];
+      }
+      return found;
+    }
+
+    get typeLabel(): string {
+      if(this.type) return ('name.'+this.type).replace(/_/g, '-');
+      return '';
+    }
+
+    get link(): string[] {
+      // FIXME need to move link generation into general data service
+      if(this.type === 'registration')
+        return ['/topic/', this.source_id];
+      return ['/topic/', this.type, this.source_id];
+    }
+
+    extLink(...args): string[] {
+      return this.link.concat(args)
+    }
+  }
+
+  export class TopicFormatted extends Topic {
+    static extPath = 'formatted';
+  }
+
+  export class TopicRelatedFrom extends Topic {
+    static childResource = 'related_from';
+  }
+
+  export class TopicRelatedTo extends Topic {
+    static childResource = 'related_to';
+  }
+
+}
+// end Model
+
+
+export namespace Fetch {
+
+  export class BaseResult<T> {
+    public data: T;
+    public meta: any;
+    protected _input: any;
+
+    constructor(
+        protected _ctor: (any) => T,
+        input?: any,
+        public error?: any,
+        public loading: boolean = false,
+        meta = null) {
+      this.input = input;
+      this.meta = meta || {};
+    }
+
+    get input(): any {
+      return this._input;
+    }
+
+    set input(value: any) {
+      this._input = value;
+      this.data = value ? this._ctor(value) : null;
+    }
+
+    get empty(): boolean {
+      return ! this.data;
+    }
+
+    get loaded(): boolean {
+      return !! this.data;
+    }
+
+    get notFound(): boolean {
+      return this.error && this.error.obj && this.error.obj.status === 404;
+    }
+  }
+
+  export class ListInfo {
+    public pageNum: number = 1;
+    public pageCount: number = 0;
+    public resultCount: number = 0;
+    public totalCount: number = 0;
+    public firstIndex = 0;
+    public lastIndex = 0;
+    public timing: number = 0;
+    public previous: string = null;
+    public next: string = null;
+    public params: {[key: string]: any};
+    public facets: any;
+
+    get havePrevious(): boolean {
+      return this.previous != null;
+    }
+
+    get haveNext(): boolean {
+      return this.next != null;
+    }
+
+    static fromResult(value: any): ListInfo {
+      let ret = new ListInfo();
+      if(value) {
+        ret.pageNum = value.page || null;
+        ret.firstIndex = value.first_index || null;
+        ret.lastIndex = value.last_index || null;
+        ret.totalCount = value.total || null;
+        ret.next = value.next || null;
+        ret.previous = value.previous || null;
+      }
+      return ret;
+    }
+  }
+
+  export class ListResult<T> extends BaseResult<T[]> {
+    public info: ListInfo;
+
+    get input(): any {
+      return this._input;
+    }
+
+    set input(value: any) {
+      this._input = value;
+      if(value instanceof Array) {
+        this.data = this._ctor(value);
+      }
+      else if(value && 'results' in value && value['results'] instanceof Array) {
+        this.data = this._ctor(value['results']);
+        this.info = ListInfo.fromResult(value);
+      }
+      else {
+        this.data = null;
+      }
+    }
+  }
+
+  export interface ResultCtor<T, R extends BaseResult<T>> {
+    new (
+      ctor: (any) => T,
+      input?: any,
+      error?: any,
+      loading?: boolean,
+      meta?: any): R;
+  }
+
+  export class RequestParams {
+    path?: string;
+    resource?: string;
+    recordId?: string;
+    childResource?: string;
+    childId?: string;
+    extPath?: string;
+    persist: boolean = false;
+
+    static fromModel<M extends Model.BaseModel>(ctor: Model.ModelCtor<M>) {
+      let req = new RequestParams();
+      req.resource = ctor.resourceName;
+      req.childResource = ctor.childResource;
+      req.extPath = ctor.extPath;
+      return req;
+    }
+
+    static from(params: any) {
+      let req = new RequestParams();
+      if(params)
+        Object.assign(req, params);
+      return req;
+    }
+
+    extend(info: RequestParams | { [key: string]: any }) {
+      let ret = new RequestParams();
+      Object.assign(ret, this);
+      if(info)
+        Object.assign(ret, info);
+      return ret;
+    }
+
+    getRecordPath(recordId?: string, childId?: string, extPath?: string): string {
+      let path = null;
+      if(this.path) {
+        path = this.path;
+      }
+      else if(this.resource) {
+        if(! recordId) recordId = this.recordId;
+        if(! extPath) extPath = this.extPath;
+        if(recordId) {
+          path = `${this.resource}/${recordId}`;
+          if(this.childResource) {
+            if(! childId) childId = this.childId;
+            if(childId)
+              path = `${path}/${this.childResource}/${childId}`;
+            else
+              path = null;
+          }
+          else if(extPath) {
+            path = `${path}/${extPath}`;
+          }
+        }
+      }
+      return path;
+    }
+
+    getListPath(recordId?: string, extPath?: string): string {
+      let path = null;
+      if(this.path) {
+        path = this.path;
+      }
+      else if(this.resource) {
+        if(! recordId) recordId = this.recordId;
+        if(! extPath) extPath = this.extPath;
+        path = this.resource;
+        if(this.childResource) {
+          if(recordId)
+            path = `${path}/${recordId}/${this.childResource}`;
+          else
+            path = null;
+        }
+        else if(extPath) {
+          path = `${path}/${extPath}`;
+        }
+      }
+      return path;
+    }
+  }
+
+  export class BaseLoader<T, R extends BaseResult<T>> {
+    _result: BehaviorSubject<R>;
+    _sub: Subscription;
+
+    constructor(
+      protected _rctor: ResultCtor<T, R>,
+      protected _map: (any) => T,
+      protected _req?: RequestParams
+    ) {
+      if(! this._req) this._req = new RequestParams();
+      this._result = new BehaviorSubject(this._makeResult());
+    }
+
+    complete() {
+      this._clearSub();
+      if(this._result) {
+        this._result.complete();
+        this._result = null;
+      }
+    }
+
+    reset() {
+      this._clearSub();
+      this.result = this._makeResult();
+    }
+
+    _clearSub() {
+      if(this._sub) {
+        this._sub.unsubscribe();
+        this._sub = null;
+      }
+    }
+
+    protected _makeResult(input?: any, error?: any, loading: boolean = false, meta=null) {
+      return new this._rctor(this._map, input, error, loading, meta);
+    }
+
+    get stream(): Observable<R> {
+      return this._result.asObservable();
+    }
+
+    get ready(): Observable<R> {
+      return this.stream.filter(result => result.loaded);
+    }
+
+    get result(): R {
+      return this._result.value;
+    }
+
+    set result(val: R) {
+      this._result.next(val);
+    }
+
+    get request(): RequestParams {
+      return this._req;
+    }
+
+    loadData(input: any, meta = null) {
+      this.result = this._makeResult(input, null, false, meta);
+    }
+
+    loadError(err: any, meta = null) {
+      this.result = this._makeResult(null, err, false, meta);
+    }
+
+    loadFrom(obs: Observable<any>, meta = null) {
+      this._clearSub();
+      let input = this._req.persist ? this.result.input : null;
+      this.result = this._makeResult(input, null, true, meta);
+      this._sub = obs.subscribe(
+        (result) => this.loadData(result, meta),
+        (err) => this.loadError(err, meta)
+      );
+    }
+
+    loadNotFound(meta = null) {
+      this.loadError({obj: {status: 404}});
+    }
+  }
+
+  export class DataLoader<T> extends BaseLoader<T, BaseResult<T>> {
+    constructor(
+        map: (any) => T,
+        req?: RequestParams) {
+      super(BaseResult, map, req);
+    }
+  }
+
+  export class JsonLoader extends DataLoader<any> {
+    constructor(req?: RequestParams) {
+      super(val => val, req);
+    }
+  }
+
+  export class ListLoader<T> extends BaseLoader<T[], ListResult<T>> {
+    constructor(
+        protected _mapEntry: (any) => T,
+        req?: RequestParams) {
+      super(
+        ListResult,
+        data => {
+          let list = null;
+          if(data instanceof Array) {
+            list = [];
+            for(let row of data) {
+              list.push(_mapEntry(row));
+            }
+          } else if(data) {
+            console.error("Expected array");
+          }
+          return list;
+        },
+        req);
+    }
+  }
+
+  export class ModelLoader<M extends Model.BaseModel> extends DataLoader<M> {
+    constructor(ctor: Model.ModelCtor<M>, req?: RequestParams | { [key: string]: any }) {
+      let creq = RequestParams.fromModel(ctor).extend(req);
+      super((data) => new ctor(data), creq);
+    }
+  }
+
+  export class ModelListLoader<M extends Model.BaseModel> extends ListLoader<M> {
+    constructor(ctor: Model.ModelCtor<M>, req?: RequestParams | { [key: string]: any }) {
+      let creq = RequestParams.fromModel(ctor).extend(req);
+      super((data) => new ctor(data), creq);
+    }
   }
 }
+// end Fetch
 
-export interface Location {
-  id: number;
-  verifiableOrgId: number;
-  doingBusinessAsId: number;
-  locationTypeId: number;
-  addressee: string;
-  addlDeliveryInfo: string;
-  unitNumber: string;
-  streetAddress: string;
-  municipality: string;
-  province: string;
-  postalCode: string;
-  latLong: string;
-  effectiveDate: string;
-  endDate: string;
-  // custom properties
-  summary?: string;
-  type?: LocationType;
-  typeName?: string;
-}
 
-export function blankLocation(): Location {
-  return {
-    id: 0,
-    verifiableOrgId: null,
-    doingBusinessAsId: null,
-    locationTypeId: 1,
-    addressee: '',
-    addlDeliveryInfo: '',
-    unitNumber: '',
-    streetAddress: '',
-    municipality: '',
-    province: '',
-    postalCode: '',
-    latLong: '',
-    effectiveDate: null,
-    endDate: null,
-    summary: '',
-  };
-}
+export namespace Filter {
 
-export interface LocationType {
-  id: number;
-  locType: string;
-  description: string;
-  effectiveDate: string;
-  endDate: string;
-  displayOrder: number;
-}
+  export interface Option {
+    label: string;
+    value: string;
+    active?: boolean;
+  }
 
-export function blankLocationType(): LocationType {
-  return {
-    id: 0,
-    locType: '',
-    description: '',
-    effectiveDate: null,
-    endDate: null,
-    displayOrder: null,
-  };
-}
+  export interface FieldSpec {
+    name: string;
+    label?: string;
+    alias?: string;
+    options?: Option[];
+    hidden?: boolean;
+    defval?: string;
+    value?: string;
+    blank?: boolean;
+  }
 
-export interface Jurisdiction {
-  id: number;
-  abbrv: string;
-  name: string;
-  displayOrder: number;
-  isOnCommonList: boolean;
-  effectiveDate: string;
-  endDate: string;
-}
+  export class Field implements FieldSpec {
+    public name = '';
+    public alias = null;
+    public label = '';
+    public options;
+    public hidden = false;
+    public defval = '';
+    public blank = false;
+    _value: string = null;
 
-export function blankJurisdiction(): Jurisdiction {
-  return {
-    id: 0,
-    abbrv: null,
-    name: '',
-    displayOrder: null,
-    isOnCommonList: null,
-    effectiveDate: null,
-    endDate: null
-  };
-}
+    constructor(init?: FieldSpec) {
+      if(init) {
+        Object.assign(this, init);
+        if(init.options)
+          this.options = init.options.map(o => Object.assign({}, o));
+      }
+    }
 
-export interface VerifiableClaim {
-  id: number;
-  verifiableOrgId: number;
-  claimType: number;
-  claimJSON: number,
-  effectiveDate: string;
-  endDate: string;
-  inactiveClaimReasonId: number;
-  // custom properties
-  color?: string;
-  issuer?: IssuerService;
-  type?: VerifiableClaimType;
-  org?: VerifiableOrg;
-  typeName?: string;
-  inactiveReason?: InactiveClaimReason;
-}
+    clone() {
+      return new Field(this);
+    }
 
-export interface VerifiableClaimType {
-  id: number;
-  claimType: string;
-  schemaName: string;
-  schemaVersion: string;
-  base64Logo: string;
-  issuerServiceId: number;
-  issuerURL: string;
-  effectiveDate: string;
-  endDate: string;
-}
+    get value() {
+      return this._value;
+    }
 
-export function blankClaimType(): VerifiableClaimType {
-  return {
-    id: 0,
-    claimType: '',
-    schemaName: null,
-    schemaVersion: null,
-    base64Logo: null,
-    issuerServiceId: null,
-    issuerURL: null,
-    effectiveDate: null,
-    endDate: null,
-  };
-}
+    set value(val: string) {
+      if(val === undefined || val === null) val = this.defval;
+      this._value = val;
+      this.setActive();
+    }
 
-export interface VerifiableOrg {
-  id: number;
-  orgId: string;
-  orgTypeId: number;
-  jurisdictionId: number;
-  legalName: string;
-  effectiveDate: string;
-  endDate: string;
-  // custom properties
-  primaryLocation?: Location;
-  type?: VerifiableOrgType;
-  locations?: Location[];
-  doingBusinessAs?: DoingBusinessAs[];
-  claims?: VerifiableClaim[];
-  typeName?: string;
-}
+    setActive() {
+      let val = this.value;
+      if(this.options) {
+        for(let o of this.options) {
+          o.active = (o.value === val);
+        }
+      }
+    }
+  }
 
-export interface VerifiableOrgType {
-  id: number;
-  orgType: string;
-  description: string;
-  effectiveDate: string;
-  endDate: string;
-  displayOrder: number;
-}
+  interface StrDict {[key: string]: string}
 
-export function blankOrgType(): VerifiableOrgType {
-  return {
-    id: 0,
-    orgType: '',
-    description: null,
-    effectiveDate: null,
-    endDate: null,
-    displayOrder: null,
-  };
+  export class FieldSet {
+    _result: BehaviorSubject<Field[]>;
+    _fields: Field[] = [];
+    _defaults: StrDict = {};
+    _values: StrDict = {};
+
+    constructor(
+      fields: FieldSpec[]
+    ) {
+      let fs = [];
+      if(fields) {
+        for(let opt of fields)
+          fs.push(new Field(opt));
+      }
+      this._fields = fs;
+      this._result = new BehaviorSubject(this._next());
+    }
+
+    loadQuery(params: StrDict) {
+      let upd = {};
+      for(let opt of this._fields) {
+        let k = opt.alias || opt.name;
+        if(k in params)
+          upd[opt.name] = params[k];
+      }
+      this.update(upd);
+    }
+
+    get stream(): Observable<Field[]> {
+      return this._result.asObservable();
+    }
+
+    get streamVisible(): Observable<Field[]> {
+      return this.stream.map(fs => fs.filter(f => ! f.hidden));
+    }
+
+    get result(): Field[] {
+      return this._result.value;
+    }
+
+    get queryParams(): StrDict {
+      let fs = this.result;
+      let ret = {};
+      for(let opt of fs) {
+        if(opt.value !== null)
+          ret[opt.alias || opt.name] = opt.value;
+      }
+      return ret;
+    }
+
+    complete() {
+      if(this._result) {
+        this._result.complete();
+        this._result = null;
+      }
+    }
+
+    reset() {
+      this.values = {};
+    }
+
+    getFieldValue(key: string): string {
+      return this._values[key];
+    }
+
+    setFieldValue(key: string, value: string|number) {
+      let upd = {};
+      upd[key] = value;
+      this.update(upd);
+    }
+
+    update(vals?: StrDict) {
+      let v = {... this._values};
+      if(vals)
+        Object.assign(v, vals);
+      this.values = v;
+    }
+
+    _next() {
+      let vs = this._values;
+      let fs = [];
+      for(let f of this._fields) {
+        let f2 = f.clone();
+        f2.value = vs[f2.name];
+        fs.push(f2);
+      }
+      return fs;
+    }
+
+    _update() {
+      if(this._result)
+        this._result.next(this._next());
+    }
+
+    get defaults() {
+      return this._defaults;
+    }
+
+    set defaults(vals: StrDict) {
+      this._defaults = vals || {};
+      this.update();
+    }
+
+    get values() {
+      return {... this._values};
+    }
+
+    set values(vals: StrDict) {
+      let v = {};
+      for(let f of this._fields) {
+        let defval = f.defval;
+        if(f.name in this._defaults)
+          defval = this._defaults[f.name];
+        if(vals && f.name in vals && vals[f.name] !== null) {
+          let input = vals[f.name];
+          if(typeof input === 'string' || typeof input === 'number') {
+            input = ('' + input).trim();
+          }
+          if(input === '' && defval !== '' && ! f.blank) {
+            input = defval;
+          }
+          v[f.name] = input;
+        }
+        else {
+          v[f.name] = defval;
+        }
+      }
+      this._values = v;
+      this._update();
+    }
+  }
 }
+// end Filter
