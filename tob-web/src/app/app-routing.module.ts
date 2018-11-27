@@ -1,14 +1,15 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { NotFoundComponent } from './util/not-found.component';
 
+import { ContactComponent } from './info/contact.component';
 import { CredFormComponent } from './cred/form.component';
 import { HomeComponent } from './home/home.component';
 import { IssuerFormComponent } from './issuer/form.component';
+import { NotFoundComponent } from './util/not-found.component';
 import { SearchComponent } from './search/form.component';
 import { TopicFormComponent } from './topic/form.component';
 
-export const routes: Routes = [
+export const ROUTES: Routes = [
   {
     path: '',
     redirectTo: 'home',
@@ -42,10 +43,23 @@ export const routes: Routes = [
       },
       {
         path: 'cred/:credId',
-        component: CredFormComponent,
         data: {
           breadcrumb: 'cred.breadcrumb'
-        }
+        },
+        children: [
+          {
+            path: '',
+            component: CredFormComponent,
+          },
+          {
+            path: 'verify',
+            component: CredFormComponent,
+            data: {
+              breadcrumb: 'cred.verify-breadcrumb',
+              verify: true
+            }
+          }
+        ]
       }
     ]
   },
@@ -61,10 +75,23 @@ export const routes: Routes = [
       },
       {
         path: 'cred/:credId',
-        component: CredFormComponent,
         data: {
           breadcrumb: 'cred.breadcrumb'
-        }
+        },
+        children: [
+          {
+            path: '',
+            component: CredFormComponent,
+          },
+          {
+            path: 'verify',
+            component: CredFormComponent,
+            data: {
+              breadcrumb: 'cred.verify-breadcrumb',
+              verify: true
+            }
+          }
+        ]
       }
     ]
   },
@@ -73,6 +100,13 @@ export const routes: Routes = [
     component: IssuerFormComponent,
     data: {
       breadcrumb: 'issuer.breadcrumb',
+    }
+  },
+  {
+    path: 'contact',
+    component: ContactComponent,
+    data: {
+      breadcrumb: 'connect.breadcrumb',
     }
   },
   {
@@ -86,7 +120,7 @@ export const routes: Routes = [
 
 @NgModule({
   imports: [
-    RouterModule.forRoot(routes),
+    RouterModule.forRoot(ROUTES),
   ],
   exports: [
     RouterModule,

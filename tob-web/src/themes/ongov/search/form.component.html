@@ -1,4 +1,5 @@
-<section id="search" *ngIf="(result$ | async) as result">
+<section id="search" class="container" *ngIf="(result$ | async) as result">
+  <app-breadcrumb></app-breadcrumb>
 
   <h1 class="search-title" translate>search.title</h1>
 
@@ -7,7 +8,7 @@
 
       <div class="search-head">
         <div class="search-wrap">
-          <search-input #searchInput (queryChange)="updateQuery($event)" [loading]="searching"></search-input>
+          <search-input #searchInput (accepted)="updateQuery($event)" [loading]="result.loading"></search-input>
         </div>
       </div>
 

@@ -9,7 +9,9 @@ from django.db.models.manager import Manager
 from rest_framework.serializers import ListSerializer, SerializerMethodField
 from rest_framework.utils.serializer_helpers import ReturnDict
 from drf_haystack.serializers import (
-    HaystackSerializerMixin, HaystackSerializer, HaystackFacetSerializer,
+    FacetFieldSerializer,
+    HaystackFacetSerializer,
+    HaystackSerializerMixin,
 )
 
 from api_v2.serializers.rest import (
@@ -18,6 +20,7 @@ from api_v2.serializers.rest import (
     NameSerializer,
     TopicSerializer,
     CredentialSerializer,
+    CredentialSetSerializer,
     CredentialTypeSerializer,
     IssuerSerializer,
     CredentialAddressSerializer,
@@ -25,11 +28,14 @@ from api_v2.serializers.rest import (
     CredentialNameSerializer,
     CredentialTopicSerializer,
     CredentialTopicExtSerializer,
+    CredentialNamedTopicSerializer,
 )
 
 from api_v2.models.Address import Address
 from api_v2.models.Attribute import Attribute
 from api_v2.models.Credential import Credential
+from api_v2.models.CredentialType import CredentialType
+from api_v2.models.Issuer import Issuer
 from api_v2.models.Name import Name
 from api_v2 import utils
 
@@ -65,11 +71,6 @@ class SearchResultsListSerializer(ListSerializer):
         return results
 
 
-class CustomCredentialSerializer(CredentialSerializer):
-    class Meta(CredentialSerializer.Meta):
-        fields = ("id", "effective_date", "inactive", "revoked")
-
-
 class CustomIssuerSerializer(IssuerSerializer):
     class Meta(IssuerSerializer.Meta):
         fields = ("id", "did", "name", "abbreviation", "email", "url", "has_logo")
@@ -81,7 +82,8 @@ class CustomAddressSerializer(AddressSerializer):
     inactive = SerializerMethodField()
 
     class Meta(AddressSerializer.Meta):
-        fields = tuple(AddressSerializer.Meta.fields) + ("credential_id", "last_updated", "inactive")
+        fields = tuple(AddressSerializer.Meta.fields) + (
+            "credential_id", "last_updated", "inactive")
 
     def get_last_updated(self, obj):
         return obj.credential.effective_date
@@ -95,7 +97,10 @@ class CustomAttributeSerializer(AttributeSerializer):
     inactive = SerializerMethodField()
 
     class Meta(AttributeSerializer.Meta):
-        fields = ("id", "credential_id", "last_updated", "inactive", "type", "format", "value")
+        fields = (
+            "id", "credential_id", "last_updated", "inactive",
+            "type", "format", "value",
+        )
 
     def get_last_updated(self, obj):
         return obj.credential.effective_date
@@ -110,7 +115,10 @@ class CustomNameSerializer(NameSerializer):
     issuer = SerializerMethodField()
 
     class Meta(NameSerializer.Meta):
-        fields = ("id", "credential_id", "last_updated", "inactive", "text", "language", "issuer")
+        fields = (
+            "id", "credential_id", "last_updated", "inactive",
+            "text", "language", "issuer",
+        )
 
     def get_last_updated(self, obj):
         return obj.credential.effective_date
@@ -134,6 +142,7 @@ class CustomTopicSerializer(TopicSerializer):
         depth = 1
         fields = (
             "id",
+            "create_timestamp",
             "source_id",
             "type",
             "names",
@@ -144,6 +153,7 @@ class CustomTopicSerializer(TopicSerializer):
     def get_names(self, obj):
         names = Name.objects.filter(
             credential__topic=obj,
+            credential__latest=True,
             credential__revoked=False,
         ).order_by('credential__inactive')
         serializer = CustomNameSerializer(instance=names, many=True)
@@ -152,6 +162,7 @@ class CustomTopicSerializer(TopicSerializer):
     def get_addresses(self, obj):
         addresses = Address.objects.filter(
             credential__topic=obj,
+            credential__latest=True,
             credential__revoked=False,
         ).order_by('credential__inactive')
         serializer = CustomAddressSerializer(instance=addresses, many=True)
@@ -160,6 +171,7 @@ class CustomTopicSerializer(TopicSerializer):
     def get_attributes(self, obj):
         attributes = Attribute.objects.filter(
             credential__topic=obj,
+            credential__latest=True,
             credential__revoked=False,
         ).order_by('credential__inactive')
         serializer = CustomAttributeSerializer(instance=attributes, many=True)
@@ -169,23 +181,61 @@ class CustomTopicSerializer(TopicSerializer):
 class CredentialSearchSerializer(HaystackSerializerMixin, CredentialSerializer):
     addresses = CredentialAddressSerializer(many=True)
     attributes = CredentialAttributeSerializer(many=True)
+    credential_set = CredentialSetSerializer()
     credential_type = CredentialTypeSerializer()
     names = CredentialNameSerializer(many=True)
     topic = CredentialTopicSerializer()
+    related_topics = CredentialNamedTopicSerializer(many=True)
 
     class Meta(CredentialSerializer.Meta):
         fields = (
             "id", "create_timestamp", "update_timestamp",
-            "credential_type", "effective_date",
+            "effective_date",
+            "inactive", "latest", "revoked", "revoked_date",
+            "wallet_id",
+            "credential_set", "credential_type",
             "addresses", "attributes", "names",
-            "inactive", "revoked", "topic",
+            "topic",
+            "related_topics",
         )
+        # used by ExactFilter
+        exact_fields = (
+            "credential_set_id",
+            "credential_type_id",
+            "issuer_id",
+            "schema_name",
+            "schema_version",
+            "topic_id",
+            "topic_type",
+            "wallet_id",
+        )
+        # used by HaystackFilter
         search_fields = (
-            "category", "location", "name",
-            "effective_date", "inactive", "revoked",
-            "topic_id", "topic_type", "topic_source_id",
-            "credential_type_id", "issuer_id",
+            "location",
+            "effective_date",
+            "revoked_date",
+            "score",
         )
+        # used by StatusFilter
+        status_fields = {
+            "inactive": "false",
+            "latest": "true",
+            "revoked": "false",
+        }
+
+
+class CredentialAutocompleteSerializer(HaystackSerializerMixin, CredentialSerializer):
+    names = CredentialNameSerializer(many=True)
+
+    class Meta(CredentialSerializer.Meta):
+        fields = (
+            "id", "names", "inactive",
+        )
+        status_fields = {
+            "inactive": None,
+            "latest": "true",
+            "revoked": "false",
+        }
 
 
 class CredentialTopicSearchSerializer(CredentialSearchSerializer):
@@ -198,23 +248,35 @@ class CredentialTopicSearchSerializer(CredentialSearchSerializer):
     class Meta(CredentialSearchSerializer.Meta):
         fields = (
             "id", "create_timestamp", "update_timestamp",
-            "credential_type", "effective_date",
+            "effective_date",
+            "inactive", "latest", "revoked", "revoked_date",
+            "wallet_id",
+            "credential_set",
+            "credential_type",
             "names",
-            "inactive", "revoked", "topic",
+            "topic",
+            "related_topics",
         )
 
 
 class CredentialFacetSerializer(HaystackFacetSerializer):
     serialize_objects = True
+
     class Meta:
         index_classes = [CredentialIndex]
         fields = [
-            "effective_date", "topic_type", "issuer_id",
-            # "credential_type_id",
+            "category",
+            "credential_type_id",
+            "issuer_id",
+            #"inactive",
+            #"topic_type",
         ]
         field_options = {
-            "topic_type": {},
+            "category": {},
+            "credential_type_id": {},
             "issuer_id": {},
+            #"inactive": {},
+            #"topic_type": {},
 # date faceting isn't working, needs to use Solr range faceting
 # https://github.com/django-haystack/django-haystack/issues/1572
 #             "effective_date": {
@@ -224,6 +286,34 @@ class CredentialFacetSerializer(HaystackFacetSerializer):
 #                 "gap_amount": 3
 #             },
         }
+
+    def get_fields(self):
+        field_mapping = OrderedDict()
+        field_mapping["facets"] = SerializerMethodField()
+        if self.serialize_objects is True:
+            field_mapping["objects"] = SerializerMethodField()
+        return field_mapping
+
+    def get_facets(self, instance):
+        result = OrderedDict()
+        for facet_type, facet_data in instance.items():
+            serial_data = {}
+            for field, facets in facet_data.items():
+                serial_data[field] = self.format_facets(field, facets)
+            result[facet_type] = serial_data
+        return result
+
+    def format_facets(self, field_name, facets):
+        result = []
+        for facet in facets:
+            row = {'value': facet[0], 'count': facet[1]}
+            # naive method - can be optimized
+            if field_name == "issuer_id":
+                row['text'] = Issuer.objects.get(pk=row['value']).name
+            elif field_name == "credential_type_id":
+                row['text'] = CredentialType.objects.get(pk=row['value']).description
+            result.append(row)
+        return result
 
     def get_objects(self, instance):
         """

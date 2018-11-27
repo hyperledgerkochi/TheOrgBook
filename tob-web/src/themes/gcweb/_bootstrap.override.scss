@@ -6,13 +6,6 @@ $theme-colors: (
 $link-color: #284162;
 $link-decoration: underline;
 
-.breadcrumb.page-breadcrumb {
-  background: none;
-}
-a.btn {
-  text-decoration: none;
-}
-
 // WET Custom
 $clrWhite: #fff !default;
 $clrLight: #eee !default;
@@ -38,43 +31,3 @@ $mb-pnl-header-color: $overlay-header-color !default;
 $mb-pnl-body-background: #0e4164 !default;
 $mb-pnl-body-color: #fff !default;
 $mb-pnl-body-link-color: #fff !default;
-
-
-.btn-default {
-  border-color: #dcdee1 !important;
-}
-
-
-.btn:not(.disabled):not([disabled]) {
-	border-style: outset;
-}
-
-
-.dl-horizontal {
-	//@media (min-width: $screen-sm-min) {
-		&.brdr-0 { // removes bordered for dl-horizontal
-			dt,
-			dd {
-				border: 0 !important;
-			}
-		}
-
-		dt {
-			border-top: 1px solid $clrMedium;
-			padding: 10px 10px 10px 0;
-			text-align: left;
-			white-space: normal;
-		}
-
-		dd {
-			border-top: 1px solid $clrMedium;
-			margin-bottom: 3px;
-			margin-left: 160px;
-			padding: 10px 10px 10px 0;
-		}
-
-		dt + dd {
-			padding-bottom: 0;
-		}
-	//}
-}

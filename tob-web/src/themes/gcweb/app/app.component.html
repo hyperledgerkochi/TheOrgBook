@@ -62,14 +62,6 @@
 </div>
 </div>
 </nav>
-<nav role="navigation" id="wb-bc" property="breadcrumb">
-<h2 translate>gcweb.here-title</h2>
-<div class="container">
-<div class="row">
-  <breadcrumb></breadcrumb>
-</div>
-</div>
-</nav>
 </header>
 
 <main role="main" property="mainContentOfPage" class="container">
@@ -81,7 +73,7 @@
   </div>
 
   <ng-container *ngIf="inited">
-    <router-outlet></router-outlet>
+    <router-outlet id="primaryOutlet"></router-outlet>
   </ng-container>
 
   <div class="pagedetails">

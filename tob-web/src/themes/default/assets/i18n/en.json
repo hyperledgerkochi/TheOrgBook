@@ -5,7 +5,7 @@
   "app": {
     "breadcrumb": "Home",
     "header": {
-      "title": "TheOrgBook",
+      "title": "OrgBook",
       "logo-alt-text": "B.C. Government Logo"
     },
     "footer": {
@@ -15,14 +15,15 @@
       "copyright": "Copyright",
       "contact": "Contact Us"
     },
-    "title": "TheOrgBook Beta",
-    "title-prefix": "TheOrgBook Beta | "
+    "title": "OrgBook Beta",
+    "title-prefix": "OrgBook Beta | "
   },
   "address": {
     "registered-office": "Registered Office"
   },
-  "attribute": {
-    "entity_status": "Registration Status"
+  "connect": {
+    "breadcrumb": "Contact",
+    "title": "Connect with Us"
   },
   "contact": {
     "email": "Email Address",
@@ -39,54 +40,69 @@
     "contact": "Contact",
     "cred-type": "Credential Type",
     "crypto-data": "Cryptographic Proof Data",
+    "date": "Credential Date",
     "empty-attribute": "–",
     "end-date": "End Date",
     "expired": "Expired",
     "expired-message": "This credential is expired and no longer verifiable.",
     "history-link": "See history",
     "inactive": "Archived",
-    "inactive-message": "This credential has been issued for archival purposes only. It does not represent a currently active registration, permit, or license.",
+    "inactive-message": "This credential has been issued for archival purposes only. It does not represent a currently active registration, permit, or licence.",
     "issuer": "Issuer",
     "last-updated": "Last Updated",
+    "latest-link": "Go to the latest credential",
     "names": "Names",
     "not-verified": "Not verified",
     "proof-details": "Credential and Proof Details",
     "proof-of-claims": "Proof of Claims",
     "requesting-proof": "Requesting proof...",
     "schema-info": "Credential Schema",
+    "select-cred-type": "(Select type)",
+    "select-issuer": "(Select issuer)",
     "start-date": "Effective Date",
     "status": "Revocation Status",
-    "topic-title": "Other Credentials",
+    "timeline-title": "Timeline",
+    "topic-title": "Credentials",
     "verify-button-label": "Verify Credential",
     "view-link": "View credential",
     "whats-this-link": "What's this?",
     "verified": "Verified",
+    "verify-breadcrumb": "Credential Verification",
+    "verify-link": "Show technical details",
     "verify-status": "Verification Status:"
   },
   "general": {
     "date-entered": "Date Entered",
-    "display-list": "List",
     "display-cards": "Cards",
+    "display-list": "List",
+    "display-timeline": "Timeline",
     "hide-filters": "Hide Filters",
-    "none": "None",
+    "details": "Details",
+    "feedback-link": "Submit Feedback",
+    "links-title": "External Links and Resources",
     "map-link": "Show on map",
     "next-link": "Next",
+    "none": "None",
     "not-found": "This record could not be located.",
     "other-error": "An unknown error occurred.",
     "period-current": "Current",
     "period-historical": "Past",
     "prev-link": "Previous",
     "show-filters": "Show Filters",
+    "show-inactive": "Show Past",
+    "show-revoked": "Show Revoked",
     "status-nonrevoked": "Not Revoked",
     "status-revoked": "Revoked",
     "status-any": "Any",
     "verified": "Verified"
   },
   "home": {
+    "about-title": "About the BC OrgBook",
     "breadcrumb": "Home",
-    "title": "Welcome to British Columbia's Verifiable Organizations",
-    "title-certs": "verifiable credentials held",
-    "title-orgs": "legal entities"
+    "title": "Welcome to The OrgBook",
+    "title-certs": "Credentials verified on the blockchain",
+    "title-orgs": "Legal entities",
+    "title-this-week": "Credentials added this week"
   },
   "issuer": {
     "breadcrumb": "Issuer Service",
@@ -120,6 +136,7 @@
     "breadcrumb": "Search",
     "by-name": "Search by Name",
     "by-location": "Search by Location",
+    "input-label": "Organization Name or Registration ID",
     "no-results": "No results",
     "placeholder": "search",
     "prompt": "Please enter your search query above in order to proceed.",
@@ -127,7 +144,8 @@
     "results-error": "Your query could not be completed at this time.",
     "results-title": "Search Results",
     "return-link": "Back to Search",
-    "title": "Find an Organization"
+    "running": "Performing search ...",
+    "title": "Find a company"
   },
   "topic": {
     "breadcrumb": "Organization",

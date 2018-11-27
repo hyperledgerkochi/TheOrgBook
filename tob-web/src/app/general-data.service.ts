@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
@@ -6,7 +7,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { map, catchError } from 'rxjs/operators';
 import { _throw } from 'rxjs/observable/throw';
 import { environment } from '../environments/environment';
-import { Fetch } from './data-types';
+import { Fetch, Filter, Model } from './data-types';
 
 
 @Injectable()
@@ -20,7 +21,14 @@ export class GeneralDataService {
   private _loaderSub: Subscription = null;
   private _defaultTopicType = 'registration';
 
-  constructor(private _http: HttpClient) {
+  constructor(
+    private _http: HttpClient,
+    private _translate: TranslateService,
+  ) {
+  }
+
+  get language() {
+    return this._translate.currentLang;
   }
 
   getRequestUrl(path: string) : string {
@@ -44,7 +52,7 @@ export class GeneralDataService {
     return this._http.get(url, {params: params})
       .pipe(catchError(error => {
         console.error("JSON load error", error);
-        return Observable.throw(error);
+        return _throw(error);
       }));
   }
 
@@ -73,10 +81,14 @@ export class GeneralDataService {
           return _throw(error);
         }));
       req.subscribe((data: any) => {
-        console.log('quickload', data);
         if(data.counts) {
           for (let k in data.counts) {
             this._recordCounts[k] = parseInt(data.counts[k]);
+          }
+        }
+        if(data.credential_counts) {
+          for (let k in data.credential_counts) {
+            this._recordCounts[k] = parseInt(data.credential_counts[k]);
           }
         }
         if(data.records) {
@@ -102,7 +114,24 @@ export class GeneralDataService {
     }
     let params = new HttpParams().set('q', term);
     return this.loadFromApi('search/autocomplete', params)
-      .pipe(map(response => response["result"]));
+      .pipe(map(response => {
+        let ret = [];
+        for(let row of response['results']) {
+          let found = null;
+          for(let name of row.names) {
+            if(~ name.text.toLowerCase().indexOf(term.toLowerCase())) {
+              found = name.text;
+              break;
+            } else if(found === null) {
+              found = name.text;
+            }
+          }
+          if(found !== null) {
+            ret.push({id: row.id, term: found});
+          }
+        }
+        return ret;
+      }));
   }
 
   makeHttpParams(query?: { [key: string ]: string } | HttpParams) {
@@ -126,7 +155,10 @@ export class GeneralDataService {
     return id;
   }
 
-  loadRecord <T>(fetch: Fetch.DataLoader<T>, id: string | number, params?: { [key: string ]: any }) {
+  loadRecord <T>(
+      fetch: Fetch.DataLoader<T>,
+      id: string | number,
+      params?: { [key: string ]: any }) {
     if(! params) params = {};
     let path = params.path || fetch.request.getRecordPath(
       this.fixRecordId(id), this.fixRecordId(params.childId), params.extPath);
@@ -137,6 +169,22 @@ export class GeneralDataService {
     if(! params) params = {};
     let path = params.path || fetch.request.getListPath(params.parentId, params.extPath);
     return this.loadData(fetch, path, params);
+  }
+
+  loadAll <M extends Model.BaseModel>(
+      ctor: Model.ModelCtor<M>): Promise<M[]> {
+    let loader = new Fetch.ModelListLoader<M>(ctor);
+    let allRows: M[] = [];
+    return new Promise((resolve, fail) => {
+      loader.stream.subscribe(result => {
+        // FIXME - implement pagination
+        if(result.loaded) {
+          allRows = allRows.concat(result.data);
+          resolve(allRows);
+        }
+      });
+      this.loadList(loader);
+    });
   }
 
   loadData <T, R extends Fetch.BaseResult<T>>(fetch: Fetch.BaseLoader<T,R>, path: string, params?: { [key: string ]: any }) {
@@ -156,6 +204,48 @@ export class GeneralDataService {
       }
       fetch.loadFrom(this.loadJson(url, httpParams), {url: url});
     }
+  }
+
+  public loadFacetOptions(data) {
+    let fields = data.info && data.info.facets && data.info.facets.fields || {};
+    let options = {
+      credential_type_id: [],
+      issuer_id: [],
+      'category:entity_type': [],
+    };
+    if(fields) {
+      for(let optname in fields) {
+        for(let optitem of fields[optname]) {
+          if(! optitem.count)
+            // skip facets with no results
+            continue;
+          let optidx = optname;
+          let optval: Filter.Option = {label: optitem.text, value: optitem.value, count: optitem.count};
+          if(optname == 'category') {
+            let optparts = optitem.value.split('::', 2);
+            if(optparts.length == 2) {
+              optidx = optname + ':' + optparts[0];
+              let lblkey = `category.${optparts[0]}.${optparts[1]}`;
+              let label = this._translate.instant(lblkey);
+              if(label === lblkey || label === `??${lblkey}??`)
+                label = optparts[1];
+              optval = {
+                label,
+                value: optparts[1],
+                count: optitem.count,
+              };
+            }
+          }
+          if(optidx in options) {
+            options[optidx].push(optval);
+          }
+        }
+      }
+    }
+    for(let name in options) {
+      options[name].sort((a,b) => a.label.localeCompare(b.label));
+    }
+    return options;
   }
 
   onCurrentResult(sub): Subscription {
