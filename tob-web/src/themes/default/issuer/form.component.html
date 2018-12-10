@@ -3,9 +3,9 @@
   <loading-indicator [loading]="result.loading"></loading-indicator>
   <error-message [error]="result.error"></error-message>
 
-  <div class="row" *ngIf="result.data as record">
+  <div class="row mt-4" *ngIf="result.data as record">
     <div class="col">
-      <h1 class="page-title">{{record.name}}
+      <h1 class="page-title" id="contentStart" tabindex="-1">{{record.name}}
         <span *ngIf="record.abbreviation">({{record.abbreviation}})</span>
       </h1>
 
@@ -21,7 +21,7 @@
           <div class="row form-group" *ngIf="record.did">
             <label class="col-sm-4 control-label" translate>issuer.did</label>
             <div class="col-sm-8 form-field">
-              <a [href]="didResolverUrl" rel="external" class="text-identifier">{{fullDid}}</a>
+              <a class="body-link text-identifier" [href]="didResolverUrl" rel="external">{{fullDid}}</a>
               <small><span class="fa fa-external-link"></span></small>
             </div>
           </div>

@@ -4,6 +4,13 @@
   min-height: 20em;
 }
 
+h3, h4, h5 {
+  &.control-label {
+    cursor: default;
+    font-size: $font-size-base;
+  }
+}
+
 @keyframes spin {
 	from {
 		transform: rotate(0);
@@ -62,6 +69,11 @@ $indicator-thickness: 0.2em;
 .text-identifier {
 	font-family: $font-family-monospace;
 	font-size: 95%;
+}
+
+.text-help {
+  font-weight: normal;
+  color: $text-muted;
 }
 
 @keyframes loading {
@@ -127,4 +139,27 @@ $indicator-thickness: 0.2em;
     > .card-header, > .card-footer {
         border-color: theme-color-level(warning, -6);
     }
+}
+
+// Header accessibility links
+a.a11y-link {
+  color: theme-color(light);
+  position: absolute;
+  left: 0;
+  top: 1rem;
+  text-align: center;
+  width: 100%;
+  &:focus {
+    color: theme-color(light);
+    outline: none;
+    z-index: 10;
+  }
+  .content {
+    background: theme-color(primary);
+    border: 1px solid theme-color(light);
+    border-radius: 3px;
+    box-sizing: border-box;
+    font-size: 1.1;
+    padding: 0.25em;
+  }
 }
