@@ -21,6 +21,9 @@
   "address": {
     "registered-office": "Registered Office"
   },
+  "attribute": {
+    "entity_status": "Entity Status"
+  },
   "connect": {
     "breadcrumb": "Connect with us",
     "contact-title": "Contact Us",
