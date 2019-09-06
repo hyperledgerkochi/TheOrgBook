@@ -48,6 +48,8 @@ SECRET_KEY = os.getenv(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = parse_bool(os.getenv("DJANGO_DEBUG", "True"))
 
+DEMO_SITE = parse_bool(os.getenv("DEMO_SITE", "False"))
+
 ALLOWED_HOSTS = ["*"]
 
 # Application definition
@@ -64,10 +66,11 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_generators",
     "drf_yasg",
-    "auditable",
+    "django_filters",
     "api",
-    "tob_api",
     "api_v2",
+    "api_indy",
+    "tob_api",
     "corsheaders",
 ]
 
@@ -80,18 +83,18 @@ else:
     print("Realtime indexing has been disabled ...")
 
 HAYSTACK_DOCUMENT_FIELD = "document"
+HAYSTACK_MAX_RESULTS = 200
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.auth.middleware.SessionAuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "tob_api.urls"
@@ -181,7 +184,7 @@ USE_TZ = True
 
 STATIC_URL = "/api/static/"
 
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 

@@ -18,39 +18,56 @@ SCRIPT_HOME="$(cd "$(dirname "$0")" && pwd)"
 # -----------------------------------------------------------------------------------------------------------------
 usage() {
   cat <<-EOF
-    
+
       Usage: $0 [command] [options]
-    
+
       Commands:
-    
+
       build - Build the docker images for the project.
               You need to do this first, since the builds require
               a combination of Docker and S2I builds.
-    
+
               You can build individual components as shown below, components that have dependencies will have these dependencies built too.
-    
+
               Examples:
                - Build the web UI only
-    
+
                 $0 build tob-web
-     
+
                - Build the API server only.
-     
+
                 $0 build tob-api
-    
+
                - Build the Solr Search Engine server only.
-           
+
                 $0 build tob-solr
-    
+
               By default all containers that components comprise of, will be rebuilt.
-    
+
                 $0 build
-    
+
       up -  Creates the application containers from the built images
             and starts the services based on the docker-compose.yml file.
 
-            You can pass in a list of containers to start.  
+            You can pass in a list of containers to start.
             By default all containers will be started.
+
+            The API_URL used by tob-web can also be redirected.
+
+            Examples:
+            $0 start
+            $0 start tob-solr
+            $0 start tob-web
+            $0 start tob-web API_URL=http://docker.for.win.localhost:56325/api/v1
+            $0 start tob-api
+
+      start - Same as up 
+    
+      restart - Re-starts the application containers, 
+                useful when updating one of the container images during development.
+
+            You can pass in a list of containers to be restarted.  
+            By default all containers will be restarted.
             
             The API_URL used by tob-web can also be redirected.
 
@@ -61,8 +78,6 @@ usage() {
             $0 start tob-web API_URL=http://docker.for.win.localhost:56325/api/v1
             $0 start tob-api
 
-      start - Same as up
-
       logs - Display the logs from the docker compose run (ctrl-c to exit).
 
       web-dev - Builds and runs a live development version of tob-web, along with
@@ -71,13 +86,13 @@ usage() {
 
       stop - Stops the services.  This is a non-destructive process.  The volumes and containers
              are not deleted so they will be reused the next time you run start.
-    
+
       down - Brings down the services and removes the volumes (storage) and containers.
       rm - Same as down
-    
+
       registerDids - Register the DIDs for the issuer services.
                      This is intended for development use.
-    
+
                      Examples:
                      $0 registerDids seed=the_org_book_0000000000000000000
                      - This will register the DID using the provided seed with the locally running von-network instance.
@@ -205,7 +220,7 @@ build-api() {
   #
   # tob-api
   #
-  BASE_IMAGE="bcgovimages/von-image:py36-1.6-ew-13-s2i"
+  BASE_IMAGE="bcgovimages/von-image:py36-1.7-ew-0-s2i"
   echo -e "\nBuilding django image from ${BASE_IMAGE}..."
   ${S2I_EXE} build \
     -e "HTTP_PROXY=${HTTP_PROXY}" \
@@ -245,7 +260,7 @@ configureEnvironment() {
 
   seed=${INDY_WALLET_SEED:-$seed}
 
-  if [ "$COMMAND" == "start" ] || [ "$COMMAND" == "registerdids" ]; then
+  if [ "$COMMAND" == "start" ] || [ "$COMMAND" == "restart" ] || [ "$COMMAND" == "registerdids" ]; then
     if [ -z "$seed" ]; then
       echo "You must provide a seed parameter. For example: seed=my_seed_000000000000000000000000."
       exit 1
@@ -266,7 +281,7 @@ configureEnvironment() {
   export ENABLE_REALTIME_INDEXING="1"
 
   # wallet-db
-  export WALLET_TYPE="postgres"
+  export WALLET_TYPE="postgres_storage"
   export WALLET_ENCRYPTION_KEY="key"
   export POSTGRESQL_WALLET_HOST="wallet-db"
   export POSTGRESQL_WALLET_PORT="5432"
@@ -283,8 +298,9 @@ configureEnvironment() {
   export CORE_NAME="the_org_book"
 
   # tob-api
+  export APP_FILE=app-vonx.py
   export APP_CONFIG=${APP_CONFIG:-}
-  export APP_MODULE=tob_anchor.boot:init_app
+  export APP_MODULE=api_indy.tob_anchor.boot:init_app
   export API_HTTP_PORT=${API_HTTP_PORT:-8081}
   export DATABASE_SERVICE_NAME="tob-db"
   export DATABASE_ENGINE="postgresql"
@@ -292,6 +308,7 @@ configureEnvironment() {
   export DATABASE_USER=${POSTGRESQL_USER}
   export DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
   export DEBUG=${DEBUG}
+  export DEMO_SITE=${DEMO_SITE-True}
   export DJANGO_SECRET_KEY=wpn1GZrouOryH2FshRrpVHcEhMfMLtmTWMC2K5Vhx8MAi74H5y
   export DJANGO_DEBUG=True
   export DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL-INFO}
@@ -321,7 +338,12 @@ configureEnvironment() {
 
 getStartupParams() {
   CONTAINERS=""
-  ARGS="--force-recreate"
+
+  case "${COMMAND}" in
+    start|up)
+      ARGS=""
+    ;;
+  esac
 
   for arg in $@; do
     case "$arg" in
@@ -427,17 +449,24 @@ shift || COMMAND=usage
 
 case "${COMMAND}" in
 start|up)
-  _startupParams=$(getStartupParams $@)
+  _startupParams=$(getStartupParams --force-recreate $@)
   configureEnvironment $@
   docker-compose up -d ${_startupParams}
   docker-compose logs -f
  ;;
-logs)
+restart)
+  _startupParams=$(getStartupParams $@)
   configureEnvironment $@
-  docker-compose logs -f
+  docker-compose stop ${_startupParams}
+  docker-compose up -d ${_startupParams}
+  ;;
+logs)
+  _startupParams=$(getStartupParams --force-recreate $@)
+  configureEnvironment $@
+  docker-compose logs -f ${_startupParams}
   ;;
 web-dev)
-  _startupParams=$(getStartupParams $@)
+  _startupParams=$(getStartupParams --force-recreate $@)
   configureEnvironment $@
   [ -z "$SKIP_BUILD" ] && build-web-dev
   docker-compose run --rm --service-ports tob-web-dev
@@ -446,6 +475,15 @@ stop)
   configureEnvironment
   docker-compose stop
   ;;
+startdb)
+  configureEnvironment $@
+  docker-compose up -d wallet-db
+  docker-compose logs -f
+ ;;
+stopdb)
+  configureEnvironment
+  docker-compose stop wallet-db
+ ;;
 rm|down)
   configureEnvironment
   deleteVolumes
@@ -455,7 +493,7 @@ registerdids)
   registerDids $(generateSeeds)
   ;;
 build)
-  _startupParams=$(getStartupParams $@)
+  _startupParams=$(getStartupParams --force-recreate $@)
   configureEnvironment $@
   case "$@" in
   tob-api)
@@ -476,12 +514,12 @@ build)
   esac
   ;;
 shell)
-  _startupParams=$(getStartupParams $@)
+  _startupParams=$(getStartupParams --force-recreate $@)
   configureEnvironment $@
   docker-compose run tob-api bash
   ;;
 django)
-  _startupParams=$(getStartupParams $@)
+  _startupParams=$(getStartupParams --force-recreate $@)
   configureEnvironment $@
   docker-compose run tob-api python manage.py $@
   ;;

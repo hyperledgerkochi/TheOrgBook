@@ -1,15 +1,15 @@
 from django.db import models
 from django.contrib.postgres import fields as contrib
 
-from auditable.models import Auditable
+from .Auditable import Auditable
 
 from .Issuer import Issuer
 from .Schema import Schema
 
 
 class CredentialType(Auditable):
-    schema = models.ForeignKey(Schema, related_name="credential_types")
-    issuer = models.ForeignKey(Issuer, related_name="credential_types")
+    schema = models.ForeignKey(Schema, related_name="credential_types", on_delete=models.CASCADE)
+    issuer = models.ForeignKey(Issuer, related_name="credential_types", on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
     processor_config = contrib.JSONField(blank=True, null=True)
     credential_def_id = models.TextField(db_index=True, null=True)
@@ -17,6 +17,9 @@ class CredentialType(Auditable):
     visible_fields = models.TextField(null=True)
     last_issue_date = models.DateTimeField(null=True)
     url = models.TextField(blank=True, null=True)
+    claim_descriptions = contrib.JSONField(blank=True, null=True)
+    claim_labels = contrib.JSONField(blank=True, null=True)
+    category_labels = contrib.JSONField(blank=True, null=True)
 
     class Meta:
         db_table = "credential_type"

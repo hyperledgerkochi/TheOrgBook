@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import url
+from django.urls import include, path
 from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework.routers import SimpleRouter
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly, AllowAny
@@ -35,6 +35,7 @@ router.register(r"attribute", rest.AttributeViewSet)
 router.register(r"credential", rest.CredentialViewSet)
 router.register(r"name", rest.NameViewSet)
 router.register(r"topic", rest.TopicViewSet)
+router.register(r"topic_relationship", rest.TopicRelationshipViewSet)
 
 # Search endpoints
 router.register(
@@ -55,12 +56,12 @@ router.register(
 
 # Misc endpoints
 miscPatterns = [
-    url(r"^feedback$", misc.send_feedback),
-    url(r"^quickload$", misc.quickload),
+    path("feedback", misc.send_feedback),
+    path("quickload", misc.quickload),
 ]
 
 swaggerPatterns = [
-    url(r"^$", schema_view.with_ui("swagger", cache_timeout=None), name="api-docs")
+    path("", schema_view.with_ui("swagger", cache_timeout=None), name="api-docs")
 ]
 
 urlpatterns = format_suffix_patterns(

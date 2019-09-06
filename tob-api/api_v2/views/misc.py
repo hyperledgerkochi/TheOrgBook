@@ -1,6 +1,7 @@
 import logging
 
 from django.db import connection
+from django.conf import settings
 from django.http import JsonResponse
 
 from drf_yasg import openapi
@@ -9,8 +10,10 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import (
     api_view,
     authentication_classes,
+    parser_classes,
     permission_classes,
 )
+from rest_framework.parsers import FormParser
 from rest_framework import permissions
 
 from api_v2.feedback import email_feedback
@@ -19,7 +22,7 @@ from api_v2.models.Credential import Credential as CredentialModel
 from api_v2.models.CredentialType import CredentialType
 from api_v2.models.Issuer import Issuer
 from api_v2.models.Topic import Topic
-from api_v2.utils import model_counts, solr_counts
+from api_v2.utils import model_counts, solr_counts, record_count
 
 LOGGER = logging.getLogger(__name__)
 
@@ -37,14 +40,19 @@ def quickload(request, *args, **kwargs):
     }
     with connection.cursor() as cursor:
         counts = {mname: model_counts(model, cursor) for (mname, model) in count_models.items()}
+        actual_credential_count = record_count(CredentialModel, cursor)
+   
+    counts["actual_credential_count"] = actual_credential_count
     cred_counts = solr_counts()
+    indexes_synced = ((actual_credential_count - cred_counts["total"]) == 0)
     return JsonResponse(
         {
             "counts": counts,
             "credential_counts": cred_counts,
+            "demo": settings.DEMO_SITE,
+            "indexes_synced": indexes_synced,
         }
     )
-
 
 @swagger_auto_schema(method='post', manual_parameters=[
     openapi.Parameter(
@@ -67,9 +75,11 @@ def quickload(request, *args, **kwargs):
         type=openapi.TYPE_STRING,
     ),
 ])
+
 @api_view(["POST"])
 @authentication_classes(())
 @permission_classes((permissions.AllowAny,))
+@parser_classes((FormParser,))
 def send_feedback(request, *args, **kwargs):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:

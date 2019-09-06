@@ -53,10 +53,13 @@ usage () {
     rebuildSearchIndex
       - Rebuild the search index for a given environment.
 
-    deleteWallets
-      - Delete the local wallets from one or more pods.
-        For example;
-          $0 -e dev deleteWallets django
+    updateSearchIndex
+      - Update the search index for a given environment.
+      - Supports passing arguments to updateSearchIndex.sh.  For example:
+          $0 -p bc-tob -e prod updateSearchIndex -b 500 -s 2019-07-04T00:00:00
+
+    indexSynced
+      - Check to see if the Solr indexes are syned with the database credentials.
 
     scaleUp
       - Scale up one or more pods.
@@ -150,7 +153,7 @@ resetDatabase() {
   rebuildSearchIndex ${_apiPodName}
 
   echoWarning "\nThe project's database has been reset."
-  echoWarning "You can now use the Permitify manage script to recycle the Permitify pods."  
+  echoWarning "Use the GreenLight manage script to recycle the GreenLight pods."  
 }
 
 deleteDatabase() {
@@ -179,13 +182,10 @@ hardReset() {
     exit 1
   fi
 
-  printAndWait "If you are using Permitify, use the Permitify manage script to reset the Permitify pods.\nWait for all of the pods to completely shut down before continuing."
+  printAndWait "If you are using GreenLight, use the GreenLight manage script to reset the GreenLight pods.\nWait for all of the pods to completely shut down before continuing."
 
   switchProject
   exitOnError
-
-  # Delete any sqlite wallets from the API Pod ...
-  deleteWallets ${_apiPodName}
 
   # Scale down the API pod ...
   scaleDown ${_apiPodName}
@@ -203,16 +203,15 @@ hardReset() {
   fi
 
   # Bring the API pod back up ...
+  printAndWait "If you are resetting the ledger, wait for the ledger to completely start up before continuing."
   scaleUp ${_apiPodName}
   exitOnError
   printAndWait "Wait for the ${_apiPodName} pod to completely start up before continuing."
 
   rebuildSearchIndex ${_apiPodName}
 
-  printAndWait "If you are resetting the ledger, wait for the ledger to completely start up before continuing."
-
   echoWarning "\nThe project's database and indy wallets have been reset."  
-  echoWarning "If you are using Permitify, you can now use the Permitify manage script to scale the Permitify pods up."  
+  echoWarning "If you are using GreenLight, use the GreenLight manage script to scale the GreenLight pods up."  
 }
 
 resetSearchIndex() {
@@ -282,6 +281,56 @@ rebuildSearchIndex() {
   runInContainerInteractively ${_apiPodName} './rebuildSearchIndex.sh'
   exitOnError
 }
+
+updateSearchIndex() {
+  (
+    local OPTIND
+    local OPTARG
+    unset local args
+    while getopts s:b: FLAG; do
+      case $FLAG in
+        * ) args="${args} -${FLAG} ${OPTARG}"
+          ;;
+      esac
+    done
+    shift $((OPTIND-1))
+    
+    _apiPodName=${1:-django}
+    if [ -z "${_apiPodName}" ]; then
+      echo -e \\n"updateSearchIndex; Missing parameter!"\\n
+      exit 1
+    fi
+
+    echoWarning "\nUpdating the search index ..."
+    args="$(echo "${args}" | sed -e 's/^[[:space:]]*//')"
+    runInContainer ${_apiPodName} "./updateSearchIndex.sh ${args}"
+  )
+}
+
+indexSynced() {
+  _apiPodName=${1}
+  _dbPodName=${2}
+
+  indexInfo=$(runInContainer "${_apiPodName}" \
+    'curl -s http://solr:8983/solr/the_org_book/admin/luke?wt=json&show=index&numTerms=0')
+
+  indexCount=$(echo ${indexInfo} | sed 's~\(.*"numDocs":\)\([[:digit:]]\+\).*~\2~')
+  actualCount=$(runInContainer ${_dbPodName} \
+    'psql -d ${POSTGRESQL_DATABASE} -t -c "select count(*) from credential;"')
+
+  indexDiff=$(( ${actualCount} - ${indexCount} ))
+
+  if (( ${indexCount} == ${actualCount} )); then
+    synced="true"
+  else
+    synced="false - Difference: ${indexDiff}"
+  fi 
+
+  echo
+  echo "Indexes Synced: ${synced}"
+  echo "Indexed Credentials: ${indexCount}"
+  echo "Actual Credentials: ${actualCount}"
+}
 # =================================================================================================================
 
 pushd ${SCRIPT_HOME} >/dev/null
@@ -326,9 +375,14 @@ case "${_cmd}" in
     exitOnError
     rebuildSearchIndex "${apiPodName}"
     ;;
-  deletewallets)
-    deleteWallets ${@}
-    recyclePods ${@}
+  updatesearchindex)
+    # apiPodName=${1:-django}
+    updateSearchIndex ${@}
+    ;;
+  indexsynced)
+    apiPodName=${1:-django}
+    dbPodName=${2:-postgresql}
+    indexSynced "${apiPodName}" "${dbPodName}"
     ;;
   scaleup)
     scaleUp ${@}

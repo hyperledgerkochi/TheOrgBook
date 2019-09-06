@@ -16,7 +16,7 @@
       "metadata": {
         "name": "${EMAIL_SETTINGS_STORE_NAME}",
         "labels": {
-          "app": "${NAME}",          
+          "app": "${NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -32,7 +32,7 @@
       "metadata": {
         "name": "${WALLET_CREDENTIAL_STORE_NAME}",
         "labels": {
-          "app": "${NAME}",          
+          "app": "${NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -49,7 +49,7 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${NAME}",          
+          "app": "${NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -71,7 +71,7 @@
           "service.alpha.openshift.io/dependencies": "[{\"name\": \"${DATABASE_SERVICE_NAME}\", \"kind\": \"Service\"},{\"name\": \"${SOLR_SERVICE_NAME}\", \"kind\": \"Service\"}]"
         },
         "labels": {
-          "app": "${NAME}",          
+          "app": "${NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -94,7 +94,7 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${NAME}",          
+          "app": "${NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -116,28 +116,6 @@
       }
     },
     {
-      "kind": "PersistentVolumeClaim",
-      "apiVersion": "v1",
-      "metadata": {
-        "name": "${NAME}",
-        "labels": {
-          "app": "${NAME}",
-          "template": "${NAME}-deployment-template",          
-          "app-group": "${APP_GROUP}"
-        }
-      },
-      "spec": {
-        "accessModes": [
-          "ReadWriteOnce"
-        ],
-        "resources": {
-          "requests": {
-            "storage": "${PERSISTENT_VOLUME_SIZE}"
-          }
-        }
-      }
-    },
-    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
@@ -146,7 +124,7 @@
           "description": "Defines how to deploy the application server"
         },
         "labels": {
-          "app": "${NAME}",          
+          "app": "${NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -185,14 +163,6 @@
             }
           },
           "spec": {
-            "volumes": [
-              {
-                "name": "${NAME}-data",
-                "persistentVolumeClaim": {
-                  "claimName": "${NAME}"
-                }
-              }
-            ],
             "containers": [
               {
                 "name": "${NAME}",
@@ -223,12 +193,6 @@
                     "port": 8080
                   }
                 },
-                "volumeMounts": [
-                  {
-                    "name": "${NAME}-data",
-                    "mountPath": "${MOUNT_PATH}"
-                  }
-                ],
                 "env": [
                   {
                     "name": "DATABASE_SERVICE_NAME",
@@ -325,6 +289,10 @@
                         "key": "did"
                       }
                     }
+                  },
+                  {
+                    "name": "APP_FILE",
+                    "value": "${APP_FILE}"
                   },
                   {
                     "name": "APP_CONFIG",
@@ -439,6 +407,10 @@
                         "key": "smtp-host"
                       }
                     }
+                  },
+                  {
+                    "name": "DEMO_SITE",
+                    "value": "${DEMO_SITE}"
                   }
                 ],
                 "resources": {
@@ -463,7 +435,7 @@
       "metadata": {
         "name": "${NAME}",
         "labels": {
-          "app": "${NAME}",          
+          "app": "${NAME}",
           "app-group": "${APP_GROUP}"
         }
       },
@@ -472,7 +444,7 @@
           "kind": "DeploymentConfig",
           "name": "${NAME}"
         },
-        "minReplicas": 1,
+        "minReplicas": 2,
         "maxReplicas": 5
       }
     }
@@ -538,20 +510,20 @@
       "displayName": "Wallet Storage Type",
       "description": "The wallet storage type.  Your choice of 'postgres' or 'sqlite' at the moment.  If not defined, defaults to 'sqlite' for compatibility",
       "required": false,
-      "value": "postgres"
+      "value": "postgres_storage"
     },
     {
       "name": "POSTGRESQL_WALLET_HOST",
       "displayName": "PostgreSql Wallet Hostname",
       "required": true,
-      "description": "Hostname of the deployed database hosting the wallet.  Only used when WALLET_TYPE = postgre.",
+      "description": "Hostname of the deployed database hosting the wallet.  Only used when WALLET_TYPE = postgres_storage.",
       "value": "wallet-db"
     },
     {
       "name": "POSTGRESQL_WALLET_PORT",
       "displayName": "PostgreSql Wallet Port",
       "required": true,
-      "description": "The port number of the deployed database hosting the wallet.  Only used when WALLET_TYPE = postgre.",
+      "description": "The port number of the deployed database hosting the wallet.  Only used when WALLET_TYPE = postgres_storage.",
       "value": "5432"
     },
     {
@@ -584,6 +556,12 @@
       "description": "The name of the wallet credential store (aka The name of the secret that contains the wallet credentials).",
       "required": true,
       "value": "wallet-credentials"
+    },
+    {
+      "name": "APP_FILE",
+      "displayName": "Application File",
+      "description": "Used to run the application from a Python script. This should be a path to a Python file (defaults to app.py unless set to null) that will be passed to the Python interpreter to start the application (optional).",
+      "value": "app-vonx.py"
     },
     {
       "name": "APP_CONFIG",
@@ -654,20 +632,6 @@
       "value": "postgresql"
     },
     {
-      "name": "PERSISTENT_VOLUME_SIZE",
-      "displayName": "Persistent Volume Size",
-      "description": "The size of the persistent volume , e.g. 512Mi, 1Gi, 2Gi.",
-      "required": true,
-      "value": "1Gi"
-    },
-    {
-      "name": "MOUNT_PATH",
-      "displayName": "Mount Path",
-      "description": "The path to mount the persistent volume.",
-      "required": true,
-      "value": "/home/indy/.indy_client/wallet"
-    },
-    {
       "name": "GENESIS_URL",
       "displayName": "Genesis Url",
       "description": "URL for downloading a copy of the genesis file defining the ledger connection for the environment.  Used when connecting the the Sovrin Ledger.",
@@ -679,7 +643,7 @@
       "displayName": "VON network ledger url.",
       "description": "URL for a running instance of the von-network.  Used when connecting to the BCovrin Ledger.",
       "required": false,
-      "value": "http://159.89.115.24"
+      "value": "http://dev.greenlight.bcovrin.vonx.io"
     },
     {
       "name": "LEDGER_PROTOCOL_VERSION",
@@ -746,7 +710,7 @@
       "displayName": "Application url",
       "description": "This service's url.",
       "required": true,
-      "value": "https://theorgbook.pathfinder.gov.bc.ca"
+      "value": "https://orgbook.gov.bc.ca"
     },
     {
       "name": "EMAIL_SETTINGS_STORE_NAME",
@@ -768,6 +732,13 @@
       "description": "The SMTP server address used for sending email.",
       "required": false,
       "value": ""
+    },
+    {
+      "name": "DEMO_SITE",
+      "displayName": "Demo Site Flag",
+      "description": "Set to True to indicate the site is a Demo site, False otherwise.",
+      "required": false,
+      "value": "True"
     },
     {
       "name": "CPU_REQUEST",

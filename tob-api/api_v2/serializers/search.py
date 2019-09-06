@@ -1,45 +1,36 @@
 # TODO: migrate most of these serializers to a UI specific serializer module
 
+import logging
 from collections import OrderedDict
 from datetime import datetime, timedelta
-import logging
 
-from django.db.models.manager import Manager
-
-from rest_framework.serializers import ListSerializer, SerializerMethodField
-from rest_framework.utils.serializer_helpers import ReturnDict
-from drf_haystack.serializers import (
-    FacetFieldSerializer,
-    HaystackFacetSerializer,
-    HaystackSerializerMixin,
-)
-
-from api_v2.serializers.rest import (
-    AddressSerializer,
-    AttributeSerializer,
-    NameSerializer,
-    TopicSerializer,
-    CredentialSerializer,
-    CredentialSetSerializer,
-    CredentialTypeSerializer,
-    IssuerSerializer,
-    CredentialAddressSerializer,
-    CredentialAttributeSerializer,
-    CredentialNameSerializer,
-    CredentialTopicSerializer,
-    CredentialTopicExtSerializer,
-    CredentialNamedTopicSerializer,
-)
-
+from api_v2 import utils
 from api_v2.models.Address import Address
 from api_v2.models.Attribute import Attribute
 from api_v2.models.Credential import Credential
 from api_v2.models.CredentialType import CredentialType
 from api_v2.models.Issuer import Issuer
 from api_v2.models.Name import Name
-from api_v2 import utils
-
 from api_v2.search_indexes import CredentialIndex
+from api_v2.serializers.rest import (AddressSerializer, AttributeSerializer,
+                                     CredentialAddressSerializer,
+                                     CredentialAttributeSerializer,
+                                     CredentialNamedTopicSerializer,
+                                     CredentialNameSerializer,
+                                     CredentialSerializer,
+                                     CredentialSetSerializer,
+                                     CredentialTopicExtSerializer,
+                                     CredentialTypeSerializer,
+                                     IssuerSerializer, NameSerializer,
+                                     TopicRelationshipSerializer,
+                                     TopicSerializer)
+from django.db.models.manager import Manager
+from drf_haystack.serializers import (FacetFieldSerializer,
+                                      HaystackFacetSerializer,
+                                      HaystackSerializerMixin)
+from rest_framework.serializers import (ListSerializer, ModelSerializer,
+                                        SerializerMethodField)
+from rest_framework.utils.serializer_helpers import ReturnDict
 
 logger = logging.getLogger(__name__)
 
@@ -93,14 +84,19 @@ class CustomAddressSerializer(AddressSerializer):
 
 
 class CustomAttributeSerializer(AttributeSerializer):
+    credential_type_id = SerializerMethodField()
     last_updated = SerializerMethodField()
     inactive = SerializerMethodField()
 
     class Meta(AttributeSerializer.Meta):
         fields = (
-            "id", "credential_id", "last_updated", "inactive",
+            "id", "credential_id", "credential_type_id",
+            "last_updated", "inactive",
             "type", "format", "value",
         )
+
+    def get_credential_type_id(self, obj):
+        return obj.credential.credential_type_id
 
     def get_last_updated(self, obj):
         return obj.credential.effective_date
@@ -117,7 +113,7 @@ class CustomNameSerializer(NameSerializer):
     class Meta(NameSerializer.Meta):
         fields = (
             "id", "credential_id", "last_updated", "inactive",
-            "text", "language", "issuer",
+            "text", "language", "issuer", "type",
         )
 
     def get_last_updated(self, obj):
@@ -178,13 +174,45 @@ class CustomTopicSerializer(TopicSerializer):
         return serializer.data
 
 
+class CustomTopicRelationshipSerializer(TopicRelationshipSerializer):
+    attributes = CredentialAttributeSerializer(source="credential_attributes", many=True)
+    topic = CustomTopicSerializer()
+    related_topic = CustomTopicSerializer()
+    relation_id = SerializerMethodField()
+    topic_id = SerializerMethodField()
+
+    def __init__(self, *args, **kwargs):
+        super(CustomTopicRelationshipSerializer, self).__init__(*args)
+        self.relationship_type = kwargs.get('relationship_type', 'to' )
+
+    class Meta(TopicRelationshipSerializer.Meta):
+        depth = 1
+        fields = (
+            "topic_id",
+            "relation_id",
+            "credential",
+            "topic",
+            "related_topic",
+            "attributes",
+        )
+
+    def get_relation_id(self, obj):
+        return obj.id
+
+    def get_topic_id(self, obj):
+        if self.relationship_type == 'to':
+            return obj.topic.id
+        else:
+            return obj.related_topic.id
+
+
 class CredentialSearchSerializer(HaystackSerializerMixin, CredentialSerializer):
     addresses = CredentialAddressSerializer(many=True)
     attributes = CredentialAttributeSerializer(many=True)
     credential_set = CredentialSetSerializer()
     credential_type = CredentialTypeSerializer()
     names = CredentialNameSerializer(many=True)
-    topic = CredentialTopicSerializer()
+    topic = CredentialNamedTopicSerializer()
     related_topics = CredentialNamedTopicSerializer(many=True)
 
     class Meta(CredentialSerializer.Meta):
@@ -253,6 +281,7 @@ class CredentialTopicSearchSerializer(CredentialSearchSerializer):
             "wallet_id",
             "credential_set",
             "credential_type",
+            "attributes",
             "names",
             "topic",
             "related_topics",
