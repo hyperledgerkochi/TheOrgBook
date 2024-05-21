@@ -51,3 +51,4 @@ aiohttp~=3.4.0
 aiohttp-wsgi~=0.8.1
 
 asgiref~=3.1.2
+requests>=2.32.0 # not directly required, pinned by Snyk to avoid a vulnerability
